@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <ProjectGuid>{E95D1550-70CB-4251-8EEE-13430282F2F4}</ProjectGuid>
     <RootNamespace>CassandraClient</RootNamespace>
   </PropertyGroup>
@@ -90,6 +91,11 @@
     <Reference Include="Thrift">
       <HintPath>..\Lib\Thrift.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cassandra.Client.Thrift\Cassandra.Client.Thrift.csproj">
+      <Project>{e7daf25a-6b34-4c75-b5a6-b64e7cc9469b}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

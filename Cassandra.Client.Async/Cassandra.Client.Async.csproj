@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B2788B02-6878-444C-92B9-F33DA2245859}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{C82D56FF-C104-4DAD-A724-99CCB02263F8}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cassandra.Server</RootNamespace>
-    <AssemblyName>Cassandra.Server</AssemblyName>
+    <RootNamespace>Cassandra.Client.Async</RootNamespace>
+    <AssemblyName>Cassandra.Client.Async</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,9 +30,11 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CassandraServer.cs" />
-    <Compile Include="Run.cs" />
+    <Compile Include="CassandraClientAsync.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Apache.Cassandra">
@@ -42,6 +44,16 @@
     <Reference Include="Thrift">
       <HintPath>..\Lib\Thrift.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cassandra.Client.Thrift\Cassandra.Client.Thrift.csproj">
+      <Project>{e7daf25a-6b34-4c75-b5a6-b64e7cc9469b}</Project>
+      <Name>Cassandra.Client.Thrift</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cassandra.Client\Cassandra.Client.vcxproj">
+      <Project>{e95d1550-70cb-4251-8eee-13430282f2f4}</Project>
+      <Name>Cassandra.Client</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

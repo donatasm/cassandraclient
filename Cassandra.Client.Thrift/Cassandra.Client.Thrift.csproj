@@ -4,13 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B2788B02-6878-444C-92B9-F33DA2245859}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{E7DAF25A-6B34-4C75-B5A6-B64E7CC9469B}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cassandra.Server</RootNamespace>
-    <AssemblyName>Cassandra.Server</AssemblyName>
+    <RootNamespace>Cassandra.Client.Thrift</RootNamespace>
+    <AssemblyName>Cassandra.Client.Thrift</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -31,14 +34,18 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CassandraServer.cs" />
-    <Compile Include="Run.cs" />
+    <Compile Include="DescribeVersionArgs.cs" />
+    <Compile Include="DescribeVersionResult.cs" />
+    <Compile Include="IArgs.cs" />
+    <Compile Include="IResult.cs" />
+    <Compile Include="Sequence.cs" />
+    <Compile Include="SetKeyspaceArgs.cs" />
+    <Compile Include="SetKeyspaceResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Apache.Cassandra">
       <HintPath>..\Lib\Apache.Cassandra.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
     <Reference Include="Thrift">
       <HintPath>..\Lib\Thrift.dll</HintPath>
     </Reference>

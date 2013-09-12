@@ -29,8 +29,8 @@ namespace Cassandra
 
                 transport->_context = context;
 
-                // execute request callback
-                context->_input(transport->_protocol);
+                // write request message
+                context->_args->WriteMessage(transport->_protocol);
             }
         }
 
@@ -79,15 +79,15 @@ namespace Cassandra
         }
 
 
-        void CassandraClient::Send(InputProtocol^ input, OutputProtocol^ output)
+        void CassandraClient::Send(IArgs^ args, Result^ result)
         {
-            if (input == nullptr)
-                throw gcnew ArgumentNullException("input");
+            if (args == nullptr)
+                throw gcnew ArgumentNullException("args");
 
-            if (output == nullptr)
-                throw gcnew ArgumentNullException("output");
+            if (result == nullptr)
+                throw gcnew ArgumentNullException("result");
 
-            CassandraContext^ context = gcnew CassandraContext(input, output, this);
+            CassandraContext^ context = gcnew CassandraContext(args, result, this);
 
             _contextQueue->Enqueue(context);
 
@@ -102,11 +102,12 @@ namespace Cassandra
         }
 
 
-        void CassandraClient::RunAsync()
+        CassandraClient^ CassandraClient::RunAsync()
         {
             Thread^ loopThread = gcnew Thread(gcnew ThreadStart(this, &CassandraClient::RunInternal));
             loopThread->IsBackground = true;
             loopThread->Start();
+            return this;
         }
 
 

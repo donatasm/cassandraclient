@@ -14,15 +14,14 @@ using namespace System::Runtime::InteropServices;
 using namespace System::Threading;
 using namespace Thrift::Protocol;
 using namespace Thrift::Transport;
+using namespace Cassandra::Client::Thrift;
 
 
 namespace Cassandra
 {
     namespace Client
     {
-        // Thrift serialization handlers
-        public delegate void InputProtocol(TProtocol^ inputProtocol);
-        public delegate void OutputProtocol(TProtocol^ outputProtocol, Exception^ exception);
+        public delegate void Result(TProtocol^ protocol, Exception^ exception);
 
 
         ref class CassandraContextQueue;
@@ -32,10 +31,10 @@ namespace Cassandra
         public:
             CassandraClient();
             ~CassandraClient();
-            void Send(InputProtocol^ input, OutputProtocol^ output);
+            void Send(IArgs^ args, Result^ result);
             void Stop();
             void Run();
-            void RunAsync();
+            CassandraClient^ RunAsync();
         internal:
             initonly CassandraContextQueue^ _contextQueue;
             initonly Queue<CassandraTransport^>^ _transportPool;
@@ -59,12 +58,12 @@ namespace Cassandra
         private ref struct CassandraContext sealed
         {
         public:
-            CassandraContext(InputProtocol^ input, OutputProtocol^ output, CassandraClient^ client);
+            CassandraContext(IArgs^ args, Result^ result, CassandraClient^ client);
             const char* _address;
             int _port;
             initonly CassandraClient^ _client;
-            initonly InputProtocol^ _input;
-            initonly OutputProtocol^ _output;
+            initonly IArgs^ _args;
+            initonly Result^ _result;
         };
 
 

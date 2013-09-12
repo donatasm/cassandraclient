@@ -24,7 +24,7 @@ namespace Cassandra.Server
                 new TFramedTransport.Factory(),
                 new TBinaryProtocol.Factory(),
                 new TBinaryProtocol.Factory(),
-                256, 8192,
+                512, 8192,
                 Log);
         }
 
@@ -52,24 +52,24 @@ namespace Cassandra.Server
             for (var i = 0; i < columnCount; i++)
             {
                 var column = new Column
-                                 {
-                                     Name = GetBytes("Column#{0}#{1}", id, i + 1),
-                                     Value = GetBytes("Value#{0}#{1}", id, i + 1),
-                                     Timestamp = Stopwatch.GetTimestamp(),
-                                     Ttl = (int)(id % 1000)
-                                 };
+                {
+                    Name = GetBytes("Column#{0}#{1}", id, i + 1),
+                    Value = GetBytes("Value#{0}#{1}", id, i + 1),
+                    Timestamp = Stopwatch.GetTimestamp(),
+                    Ttl = (int)(id % 1000)
+                };
 
                 columns.Add(column);
             }
 
             return new ColumnOrSuperColumn
-                       {
-                           Super_column = new SuperColumn
-                                              {
-                                                  Name = GetBytes("SuperColumn#{0}", id),
-                                                  Columns = columns
-                                              }
-                       };
+            {
+                Super_column = new SuperColumn
+                {
+                    Name = GetBytes("SuperColumn#{0}", id),
+                    Columns = columns
+                }
+            };
         }
 
         private static byte[] GetBytes(string format, params object[] args)
@@ -80,6 +80,14 @@ namespace Cassandra.Server
         public void set_keyspace(string keyspace)
         {
             LogFormat("Keyspace set to {0}.", keyspace);
+        }
+
+
+        private const string Version = "19.20.20";
+        public string describe_version()
+        {
+            LogFormat("Version is {0}.", Version);
+            return Version;
         }
 
         public ColumnOrSuperColumn get(
@@ -209,11 +217,6 @@ namespace Cassandra.Server
         }
 
         public string describe_cluster_name()
-        {
-            throw new NotImplementedException();
-        }
-
-        public string describe_version()
         {
             throw new NotImplementedException();
         }

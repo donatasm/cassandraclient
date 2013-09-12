@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B2788B02-6878-444C-92B9-F33DA2245859}</ProjectGuid>
+    <ProjectGuid>{9AE93A5B-4AD1-4C87-86A7-5CF88FF64A81}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cassandra.Server</RootNamespace>
-    <AssemblyName>Cassandra.Server</AssemblyName>
+    <RootNamespace>Cassandra.Client.Test</RootNamespace>
+    <AssemblyName>Cassandra.Client.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,15 +31,29 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CassandraServer.cs" />
     <Compile Include="Run.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cassandra.Client.Async\Cassandra.Client.Async.csproj">
+      <Project>{c82d56ff-c104-4dad-a724-99ccb02263f8}</Project>
+      <Name>Cassandra.Client.Async</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cassandra.Client.Thrift\Cassandra.Client.Thrift.csproj">
+      <Project>{E7DAF25A-6B34-4C75-B5A6-B64E7CC9469B}</Project>
+      <Name>Cassandra.Client.Thrift</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cassandra.Client\Cassandra.Client.vcxproj">
+      <Project>{e95d1550-70cb-4251-8eee-13430282f2f4}</Project>
+      <Name>Cassandra.Client</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Apache.Cassandra">
       <HintPath>..\Lib\Apache.Cassandra.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="Thrift">
+    <Reference Include="Thrift, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\Thrift.dll</HintPath>
     </Reference>
   </ItemGroup>
