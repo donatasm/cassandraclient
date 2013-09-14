@@ -5,5 +5,6 @@ namespace Cassandra.Client.Thrift
     public interface IArgs
     {
         void WriteMessage(TProtocol protocol);
+        string Keyspace { get; }
     }
 }

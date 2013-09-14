@@ -1,13 +1,20 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Apache.Cassandra;
 using Cassandra.Client.Thrift;
 
 namespace Cassandra.Client.Async
 {
     public static class CassandraClientAsync
     {
-        public static Task<string> DescribeVersionAsync(this CassandraClient client)
+        public static Task<string> DescribeVersionAsync(this CassandraClient client, DescribeVersionArgs args)
         {
-            return client.SendAsync(new DescribeVersionArgs(), new DescribeVersionResult());
+            return client.SendAsync(args, new DescribeVersionResult());
+        }
+
+        public static Task<List<ColumnOrSuperColumn>> GetSliceAsync(this CassandraClient client, GetSliceArgs args)
+        {
+            return client.SendAsync(args, new GetSliceResult());
         }
 
         private static Task<TResult> SendAsync<TResult>(this CassandraClient client, IArgs args, IResult<TResult> result)
@@ -16,6 +23,8 @@ namespace Cassandra.Client.Async
 
             client.Send(args, (protocol, exception) =>
                 {
+                    var transport = (ICassandraTransport)protocol.Transport;
+
                     // check for transport exceptions
                     if (exception == null)
                     {
@@ -30,10 +39,14 @@ namespace Cassandra.Client.Async
                         {
                             tcs.TrySetException(result.Exception);
                         }
+
+                        transport.Recycle();
                     }
                     else
                     {
                         tcs.TrySetException(exception);
+
+                        transport.Close();
                     }
                 });
 

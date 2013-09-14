@@ -93,17 +93,6 @@ namespace Cassandra
 
                 transport->_position = FRAME_HEADER_SIZE;
                 transport->_context->_resultCallback(transport->_protocol, nullptr);
-
-                // if transport is still opened, return it to the pool
-                if (transport->IsOpen)
-                {
-                    // prepare for the next frame to be written
-                    transport->_position = FRAME_HEADER_SIZE;
-                    transport->_header = 0;
-
-                    // return to the pool
-                    transport->_context->_client->_transportPool->Enqueue(transport);
-                }
             }
         }
 
@@ -119,9 +108,10 @@ namespace Cassandra
         void AllocateFrameBuffer(uv_handle_t* socket, size_t size, uv_buf_t* buffer)
         {
             CassandraTransport^ transport = CassandraTransport::FromPointer(socket->data);
+            int position = transport->_position;
 
-            buffer->base = transport->_socketBuffer->buffer;
-            buffer->len = MAX_FRAME_SIZE;
+            buffer->base = transport->_socketBuffer->buffer + position;
+            buffer->len = MAX_FRAME_SIZE - position;
         }
 
 
@@ -252,6 +242,23 @@ namespace Cassandra
             {
                 SendFrame();
             }
+        }
+
+
+        void CassandraTransport::PrepareWrite()
+        {
+            _position = FRAME_HEADER_SIZE;
+            _header = 0;
+        }
+
+
+        void CassandraTransport::Recycle()
+        {
+            // prepare for the next frame to be written
+            PrepareWrite();
+
+            // return to the pool
+            _context->_client->_transportPool->Enqueue(this);
         }
 
 

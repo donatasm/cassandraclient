@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Apache.Cassandra;
@@ -44,7 +45,7 @@ namespace Cassandra.Server
             Console.WriteLine("[Server Log] {0}", String.Format(message, args));
         }
 
-        private static ColumnOrSuperColumn CreateSuperColumn(int columnCount)
+        private static List<ColumnOrSuperColumn> CreateSuperColumns(int columnCount)
         {
             var id = Interlocked.Increment(ref _id);
             var columns = new List<Column>();
@@ -62,14 +63,14 @@ namespace Cassandra.Server
                 columns.Add(column);
             }
 
-            return new ColumnOrSuperColumn
+            return columns.Select(c => new ColumnOrSuperColumn
             {
                 Super_column = new SuperColumn
                 {
                     Name = GetBytes("SuperColumn#{0}", id),
                     Columns = columns
                 }
-            };
+            }).ToList();
         }
 
         private static byte[] GetBytes(string format, params object[] args)
@@ -90,26 +91,26 @@ namespace Cassandra.Server
             return Version;
         }
 
-        public ColumnOrSuperColumn get(
-            byte[] key,
-            ColumnPath column_path,
-            ConsistencyLevel consistency_level)
-        {
-            var count = BitConverter.ToInt32(key, 0);
-            LogFormat("Key {0}, ColumnPath {1}, ConsistencyLevel {2}, Count {3}.", key, column_path, consistency_level, count);
-            return CreateSuperColumn(count);
-        }
-
-        public void login(AuthenticationRequest auth_request)
-        {
-            throw new NotImplementedException();
-        }
-
         public List<ColumnOrSuperColumn> get_slice(
             byte[] key,
             ColumnParent column_parent,
             SlicePredicate predicate,
             ConsistencyLevel consistency_level)
+        {
+            var count = BitConverter.ToInt32(key, 0);
+            LogFormat("Key {0}, ColumnParent {1}, ConsistencyLevel {2}, Count {3}.", key, column_parent, consistency_level, count);
+            return CreateSuperColumns(count);
+        }
+
+        public ColumnOrSuperColumn get(
+            byte[] key,
+            ColumnPath column_path,
+            ConsistencyLevel consistency_level)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void login(AuthenticationRequest auth_request)
         {
             throw new NotImplementedException();
         }

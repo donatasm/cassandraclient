@@ -85,9 +85,13 @@
     <ClCompile Include="CassandraTransport.cpp" />
     <ClCompile Include="CassandraClient.cpp" />
     <ClCompile Include="CassandraContext.cpp" />
+    <ClCompile Include="SetKeyspaceContext.cpp" />
     <ClCompile Include="UvException.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Apache.Cassandra">
+      <HintPath>..\Lib\Apache.Cassandra.dll</HintPath>
+    </Reference>
     <Reference Include="Thrift">
       <HintPath>..\Lib\Thrift.dll</HintPath>
     </Reference>

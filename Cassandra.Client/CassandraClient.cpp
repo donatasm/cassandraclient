@@ -4,10 +4,14 @@ namespace Cassandra
 {
     namespace Client
     {
+        bool TransportKeyspaceIsNotSet(CassandraTransport^ transport, IArgs^ args)
+        {
+            return args->Keyspace != nullptr && transport->_keyspace != args->Keyspace;
+        }
+
         void NotifyCompleted(uv_async_t* notifier, int status)
         {
             CassandraContextQueue^ contextQueue = CassandraContextQueue::FromPointer(notifier->data);
-
             CassandraContext^ context;
 
             while (contextQueue->TryDequeue(context))
@@ -15,8 +19,10 @@ namespace Cassandra
                 const char* address = context->_address;
                 int port = context->_port;
 
+                CassandraClient^ client = context->_client;
+                Queue<CassandraTransport^>^ transportPool = client->_transportPool;
+
                 CassandraTransport^ transport;
-                Queue<CassandraTransport^>^ transportPool = context->_client->_transportPool;
 
                 if (transportPool->Count > 0)
                 {
@@ -27,10 +33,24 @@ namespace Cassandra
                     transport = gcnew CassandraTransport(address, port, notifier->loop);
                 }
 
-                transport->_context = context;
+                // check if keyspace needs to be set
+                if (TransportKeyspaceIsNotSet(transport, context->_args))
+                {
+                    // send set keyspace args before the original args is sent
 
-                // write request message
-                context->_args->WriteMessage(transport->_protocol);
+                    String^ keyspace = context->_args->Keyspace;
+                    SetKeyspaceArgs^ setKeyspaceArgs = gcnew SetKeyspaceArgs();
+                    setKeyspaceArgs->Keyspace = keyspace;
+                    SetKeyspaceContext^ setKeyspaceContext = gcnew SetKeyspaceContext(context, keyspace);
+                    ResultCallback^ setKeyspaceCompleted = gcnew ResultCallback(setKeyspaceContext, &SetKeyspaceContext::Completed);
+                    transport->_context = gcnew CassandraContext(setKeyspaceArgs, setKeyspaceCompleted, client);
+                }
+                else
+                {
+                    transport->_context = context;
+                }
+
+                transport->_context->_args->WriteMessage(transport->_protocol);
             }
         }
 

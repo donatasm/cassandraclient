@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Apache.Cassandra;
 using Cassandra.Client.Async;
+using Cassandra.Client.Thrift;
 
 namespace Cassandra.Client.Test
 {
@@ -14,18 +16,42 @@ namespace Cassandra.Client.Test
 
         private static void Main()
         {
-            RunTest(DescribeVersion);
+            //RunTest(DescribeVersion);
+            RunTest(GetSlice);
         }
 
         private static async Task<long[]> DescribeVersion(CassandraClient client)
         {
             var elapsedMs = new long[RequestCount];
             var stopwatch = new Stopwatch();
+            var args = new DescribeVersionArgs();
 
             for (var i = 0; i < RequestCount; i++)
             {
                 stopwatch.Restart();
-                await client.DescribeVersionAsync();
+                await client.DescribeVersionAsync(args);
+                elapsedMs[i] = stopwatch.ElapsedMilliseconds;
+            }
+
+            return elapsedMs;
+        }
+
+        private static async Task<long[]> GetSlice(CassandraClient client)
+        {
+            var elapsedMs = new long[RequestCount];
+            var stopwatch = new Stopwatch();
+            var args = new GetSliceArgs("Keyspace#1")
+            {
+                Key = BitConverter.GetBytes(10),
+                Column_parent = new ColumnParent(),
+                Predicate = new SlicePredicate(),
+                Consistency_level = ConsistencyLevel.ONE
+            };
+
+            for (var i = 0; i < RequestCount; i++)
+            {
+                stopwatch.Restart();
+                await client.GetSliceAsync(args);
                 elapsedMs[i] = stopwatch.ElapsedMilliseconds;
             }
 

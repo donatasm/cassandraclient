@@ -90,7 +90,14 @@ namespace Cassandra
         } SocketBuffer;
 
 
-        private ref class CassandraTransport : TTransport
+        public interface class ICassandraTransport
+        {
+            void Recycle();
+            void Close();
+        };
+
+
+        private ref class CassandraTransport sealed : TTransport, ICassandraTransport
         {
         public:
             CassandraTransport(const char* address, int port, uv_loop_t* loop);
@@ -101,11 +108,14 @@ namespace Cassandra
             virtual int Read(array<byte>^ buf, int off, int len) override;
             virtual void Write(array<byte>^ buf, int off, int len) override;
             virtual void Flush() override;
+            virtual void Recycle();
+            void PrepareWrite();
             void* ToPointer();
             static CassandraTransport^ FromPointer(void* ptr);
             void SendFrame();
             void ReceiveFrame();
 
+            String^ _keyspace;
             SocketBuffer* _socketBuffer;
             CassandraContext^ _context;
             initonly TBinaryProtocol^ _protocol;
@@ -118,6 +128,17 @@ namespace Cassandra
             int _port;
             uv_loop_t* _loop;
             GCHandle _handle;
+        };
+
+
+        private ref class SetKeyspaceContext sealed
+        {
+        public:
+            SetKeyspaceContext(CassandraContext^ context, String^ keyspace);
+            void Completed(TProtocol^ protocol, Exception^ exception);
+        private:
+            initonly CassandraContext^ _context;
+            initonly String^ _keyspace;
         };
     }
 }

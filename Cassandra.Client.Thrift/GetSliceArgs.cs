@@ -2,16 +2,16 @@
 
 namespace Cassandra.Client.Thrift
 {
-    public sealed class DescribeVersionArgs : Apache.Cassandra.Cassandra.describe_version_args, IArgs
+    public sealed class GetSliceArgs : Apache.Cassandra.Cassandra.get_slice_args, IArgs
     {
-        public DescribeVersionArgs()
+        public GetSliceArgs(string keyspace)
         {
-            Keyspace = null;
+            Keyspace = keyspace;
         }
 
         public void WriteMessage(TProtocol protocol)
         {
-            protocol.WriteMessageBegin(new TMessage("describe_version", TMessageType.Call, Sequence.GetId()));
+            protocol.WriteMessageBegin(new TMessage("get_slice", TMessageType.Call, Sequence.GetId()));
             Write(protocol);
             protocol.WriteMessageEnd();
             protocol.Transport.Flush();

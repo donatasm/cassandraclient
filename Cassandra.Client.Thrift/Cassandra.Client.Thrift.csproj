@@ -36,6 +36,8 @@
   <ItemGroup>
     <Compile Include="DescribeVersionArgs.cs" />
     <Compile Include="DescribeVersionResult.cs" />
+    <Compile Include="GetSliceArgs.cs" />
+    <Compile Include="GetSliceResult.cs" />
     <Compile Include="IArgs.cs" />
     <Compile Include="IResult.cs" />
     <Compile Include="Sequence.cs" />
