@@ -6,13 +6,13 @@ namespace Cassandra.Client.Thrift
 {
     public sealed class DescribeVersionResult : Apache.Cassandra.Cassandra.describe_version_result, IResult<string>
     {
-        public IResult<string> ReadMessage(TProtocol protocol)
+        public void ReadMessage(TProtocol protocol)
         {
             if (protocol.ReadMessageBegin().Type == TMessageType.Exception)
             {
                 Exception = TApplicationException.Read(protocol);
                 protocol.ReadMessageEnd();
-                return this;
+                return;
             }
 
             Read(protocol);
@@ -22,8 +22,6 @@ namespace Cassandra.Client.Thrift
             {
                 Exception = new TApplicationException(TApplicationException.ExceptionType.MissingResult, "describe_version failed: unknown result");
             }
-
-            return this;
         }
 
         public Exception Exception { get; private set; }

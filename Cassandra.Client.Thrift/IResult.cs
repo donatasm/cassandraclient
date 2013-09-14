@@ -3,9 +3,13 @@ using Thrift.Protocol;
 
 namespace Cassandra.Client.Thrift
 {
-    public interface IResult<out TResult>
+    public interface IResult
     {
-        IResult<TResult> ReadMessage(TProtocol protocol);
+        void ReadMessage(TProtocol protocol);
+    }
+
+    public interface IResult<out TResult> : IResult
+    {
         TResult Success { get; }
         Exception Exception { get; }
     }

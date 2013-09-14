@@ -6,7 +6,7 @@ namespace Cassandra.Client.Thrift
 {
     public sealed class SetKeyspaceResult : Apache.Cassandra.Cassandra.set_keyspace_result, IResult<object>
     {
-        public IResult<object> ReadMessage(TProtocol protocol)
+        public void ReadMessage(TProtocol protocol)
         {
             Success = null;
 
@@ -14,7 +14,7 @@ namespace Cassandra.Client.Thrift
             {
                 Exception = TApplicationException.Read(protocol);
                 protocol.ReadMessageEnd();
-                return this;
+                return;
             }
 
             Read(protocol);
@@ -24,8 +24,6 @@ namespace Cassandra.Client.Thrift
             {
                 Exception = Ire;
             }
-
-            return this;
         }
 
         public object Success { get; private set; }
