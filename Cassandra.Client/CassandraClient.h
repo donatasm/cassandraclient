@@ -21,7 +21,7 @@ namespace Cassandra
 {
     namespace Client
     {
-        public delegate void Result(TProtocol^ protocol, Exception^ exception);
+        public delegate void ResultCallback(TProtocol^ protocol, Exception^ exception);
 
 
         ref class CassandraContextQueue;
@@ -31,7 +31,7 @@ namespace Cassandra
         public:
             CassandraClient();
             ~CassandraClient();
-            void Send(IArgs^ args, Result^ result);
+            void Send(IArgs^ args, ResultCallback^ resultCallback);
             void Stop();
             void Run();
             CassandraClient^ RunAsync();
@@ -58,12 +58,12 @@ namespace Cassandra
         private ref struct CassandraContext sealed
         {
         public:
-            CassandraContext(IArgs^ args, Result^ result, CassandraClient^ client);
+            CassandraContext(IArgs^ args, ResultCallback^ resultCallback, CassandraClient^ client);
             const char* _address;
             int _port;
             initonly CassandraClient^ _client;
             initonly IArgs^ _args;
-            initonly Result^ _result;
+            initonly ResultCallback^ _resultCallback;
         };
 
 

@@ -79,15 +79,15 @@ namespace Cassandra
         }
 
 
-        void CassandraClient::Send(IArgs^ args, Result^ result)
+        void CassandraClient::Send(IArgs^ args, ResultCallback^ resultCallback)
         {
             if (args == nullptr)
                 throw gcnew ArgumentNullException("args");
 
-            if (result == nullptr)
-                throw gcnew ArgumentNullException("result");
+            if (resultCallback == nullptr)
+                throw gcnew ArgumentNullException("resultCallback");
 
-            CassandraContext^ context = gcnew CassandraContext(args, result, this);
+            CassandraContext^ context = gcnew CassandraContext(args, resultCallback, this);
 
             _contextQueue->Enqueue(context);
 

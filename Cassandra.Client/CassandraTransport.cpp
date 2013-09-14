@@ -92,7 +92,7 @@ namespace Cassandra
                 }
 
                 transport->_position = FRAME_HEADER_SIZE;
-                transport->_context->_result(transport->_protocol, nullptr);
+                transport->_context->_resultCallback(transport->_protocol, nullptr);
 
                 // if transport is still opened, return it to the pool
                 if (transport->IsOpen)
