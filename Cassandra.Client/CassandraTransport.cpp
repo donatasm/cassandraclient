@@ -269,7 +269,7 @@ namespace Cassandra
             PrepareWrite();
 
             // return to the pool
-            _context->_client->_transportPool->Enqueue(this);
+            _context->_client->_transportPool->Add(this);
         }
 
 

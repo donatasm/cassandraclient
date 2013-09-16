@@ -26,7 +26,7 @@ namespace Cassandra
 
 
         ref class CassandraContextQueue;
-        ref class CassandraTransport;
+        ref class CassandraTransportPool;
         public ref class CassandraClient sealed
         {
         public:
@@ -38,7 +38,7 @@ namespace Cassandra
             CassandraClient^ RunAsync();
         internal:
             initonly CassandraContextQueue^ _contextQueue;
-            initonly Queue<CassandraTransport^>^ _transportPool;
+            initonly CassandraTransportPool^ _transportPool;
         private:
             uv_loop_t* _loop;
             uv_async_t* _notifier;
@@ -141,6 +141,18 @@ namespace Cassandra
         private:
             initonly CassandraContext^ _context;
             initonly String^ _keyspace;
+        };
+
+
+        private ref class CassandraTransportPool
+        {
+        public:
+            CassandraTransportPool();
+            void Add(CassandraTransport^ transport);
+            bool TryGet(IPEndPoint^ endPoint, CassandraTransport^ %transport);
+            IEnumerable<IPEndPoint^>^ GetEndPoints();
+        private:
+            Dictionary<IPEndPoint^, Queue<CassandraTransport^>^>^ _pool;
         };
     }
 }

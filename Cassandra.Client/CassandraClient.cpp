@@ -19,15 +19,10 @@ namespace Cassandra
                 IPEndPoint^ endPoint = context->_args->EndPoint;
 
                 CassandraClient^ client = context->_client;
-                Queue<CassandraTransport^>^ transportPool = client->_transportPool;
-
                 CassandraTransport^ transport;
 
-                if (transportPool->Count > 0)
-                {
-                    transport = transportPool->Dequeue();
-                }
-                else
+                // try get transport from a pool
+                if (!client->_transportPool->TryGet(endPoint, transport))
                 {
                     transport = gcnew CassandraTransport(endPoint, notifier->loop);
                 }
@@ -62,7 +57,7 @@ namespace Cassandra
         CassandraClient::CassandraClient()
         {
             _contextQueue = gcnew CassandraContextQueue();
-            _transportPool = gcnew Queue<CassandraTransport^>();
+            _transportPool = gcnew CassandraTransportPool();
 
             _loop = uv_loop_new();
 
@@ -83,10 +78,14 @@ namespace Cassandra
             delete _stop;
             delete _contextQueue;
 
-            while (_transportPool->Count > 0)
+            for each(IPEndPoint^ endPoint in _transportPool->GetEndPoints())
             {
-                CassandraTransport^ transport = _transportPool->Dequeue();
-                transport->Close();
+                CassandraTransport^ transport;
+
+                while (_transportPool->TryGet(endPoint, transport))
+                {
+                    transport->Close();
+                }
             }
         }
 
