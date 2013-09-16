@@ -50,7 +50,7 @@ namespace Cassandra
         {
         internal:
             UvException(String^ message);
-            static UvException^ CreateFromLastError(int error);
+            static UvException^ CreateFrom(int error);
             static void Throw(int error);
         };
 
@@ -114,6 +114,8 @@ namespace Cassandra
             static CassandraTransport^ FromPointer(void* ptr);
             void SendFrame();
             void ReceiveFrame();
+            void SetError(Exception^ exception);
+            void SetError(int error);
 
             String^ _keyspace;
             SocketBuffer* _socketBuffer;

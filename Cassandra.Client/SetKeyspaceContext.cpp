@@ -15,7 +15,7 @@ namespace Cassandra
         {
             if (exception != nullptr)
             {
-                _context->_resultCallback(nullptr, exception);
+                _context->_resultCallback(protocol, exception);
                 return;
             }
 
@@ -24,7 +24,7 @@ namespace Cassandra
 
             if (setKeyspaceResult->Exception != nullptr)
             {
-                _context->_resultCallback(nullptr, setKeyspaceResult->Exception);
+                _context->_resultCallback(protocol, setKeyspaceResult->Exception);
                 return;
             }
 

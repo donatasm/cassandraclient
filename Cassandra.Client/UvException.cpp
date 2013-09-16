@@ -9,7 +9,7 @@ namespace Cassandra
         }
 
 
-        UvException^ UvException::CreateFromLastError(int error)
+        UvException^ UvException::CreateFrom(int error)
         {
             return gcnew UvException(gcnew String(uv_strerror(error)));
         }
@@ -17,7 +17,7 @@ namespace Cassandra
 
         void UvException::Throw(int error)
         {
-            throw CreateFromLastError(error);
+            throw CreateFrom(error);
         }
     }
 }

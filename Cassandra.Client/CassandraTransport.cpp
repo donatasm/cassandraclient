@@ -4,6 +4,12 @@ namespace Cassandra
 {
     namespace Client
     {
+        TTransportException^ MaximumFrameSizeExceeded()
+        {
+            return gcnew TTransportException(String::Format("Maximum frame size {0} exceeded.", MAX_FRAME_SIZE));
+        }
+
+
         void OpenCompleted(uv_connect_t* connectRequest, int status)
         {
             CassandraTransport^ transport = CassandraTransport::FromPointer(connectRequest->data);
@@ -11,8 +17,8 @@ namespace Cassandra
 
             if (status != 0)
             {
-                transport->Close();
-                UvException::Throw(status);
+                transport->SetError(status);
+                return;
             }
 
             transport->_isOpen = true;
@@ -27,8 +33,8 @@ namespace Cassandra
 
             if (status != 0)
             {
-                transport->Close();
-                UvException::Throw(status);
+                transport->SetError(status);
+                return;
             }
 
             transport->_socketBuffer->socket.data = transport->ToPointer();
@@ -43,14 +49,14 @@ namespace Cassandra
 
             if (nread < 0)
             {
-                transport->Close();
-                UvException::Throw((int)nread);
+                transport->SetError((int)nread);
+                return;
             }
 
             if (transport->_position + nread > MAX_FRAME_SIZE)
             {
-                transport->Close();
-                throw gcnew TTransportException(String::Format("Maximum frame size {0} exceeded.", MAX_FRAME_SIZE));
+                transport->SetError(MaximumFrameSizeExceeded());
+                return;
             }
 
             // read frame header
@@ -87,8 +93,8 @@ namespace Cassandra
                 int error = uv_read_stop((uv_stream_t*)&transport->_socketBuffer->socket);
                 if (error != 0)
                 {
-                    transport->Close();
-                    UvException::Throw(error);
+                    transport->SetError(error);
+                    return;
                 }
 
                 transport->_position = FRAME_HEADER_SIZE;
@@ -146,13 +152,15 @@ namespace Cassandra
             error = uv_ip4_addr(_address, _port, &address);
             if (error != 0)
             {
-                UvException::Throw(error);
+                SetError(error);
+                return;
             }
 
             error = uv_tcp_init(_loop, &_socketBuffer->socket);
             if (error != 0)
             {
-                UvException::Throw(error);
+                SetError(error);
+                return;
             }
 
             uv_connect_t* connectRequest = new uv_connect_t();
@@ -162,7 +170,8 @@ namespace Cassandra
             if (error != 0)
             {
                 delete connectRequest;
-                UvException::Throw(error);
+                SetError(error);
+                return;
             }
         }
 
@@ -221,7 +230,8 @@ namespace Cassandra
         {
             if (_position + len > MAX_FRAME_SIZE)
             {
-                throw gcnew TTransportException(String::Format("Maximum frame size {0} exceeded.", MAX_FRAME_SIZE));
+                SetError(MaximumFrameSizeExceeded());
+                return;
             }
 
             IntPtr destination = IntPtr::IntPtr(_socketBuffer->buffer) + _position;
@@ -295,7 +305,8 @@ namespace Cassandra
             if (error != 0)
             {
                 delete writeRequest;
-                UvException::Throw(error);
+                SetError(error);
+                return;
             }
         }
 
@@ -308,8 +319,21 @@ namespace Cassandra
             int error = uv_read_start((uv_stream_t*)&_socketBuffer->socket, AllocateFrameBuffer, ReceiveFrameCompleted);
             if (error != 0)
             {
-                UvException::Throw(error);
+                SetError(error);
+                return;
             }
+        }
+
+
+        void CassandraTransport::SetError(Exception^ exception)
+        {
+            _context->_resultCallback(_protocol, exception);
+        }
+
+
+        void CassandraTransport::SetError(int error)
+        {
+            SetError(UvException::CreateFrom(error));
         }
     }
 }
