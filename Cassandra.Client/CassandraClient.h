@@ -55,7 +55,7 @@ namespace Cassandra
         };
 
 
-        private ref struct CassandraContext sealed
+        private ref class CassandraContext sealed
         {
         public:
             CassandraContext(IArgs^ args, ResultCallback^ resultCallback, CassandraClient^ client);
