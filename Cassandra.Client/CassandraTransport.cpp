@@ -121,19 +121,20 @@ namespace Cassandra
         }
 
 
-        CassandraTransport::CassandraTransport(const char* address, int port, uv_loop_t* loop)
+        CassandraTransport::CassandraTransport(IPEndPoint^ endPoint, uv_loop_t* loop)
         {
             _handle = GCHandle::Alloc(this);
 
-            _address = address;
-            _port = port;
+            _endPoint = endPoint;
+            _protocol = gcnew TBinaryProtocol(this);
+
+            _address = static_cast<char*>(Marshal::StringToHGlobalAnsi(endPoint->Address->ToString()).ToPointer());
+            _port = endPoint->Port;
             _loop = loop;
             _position = FRAME_HEADER_SIZE; // reserve first bytes for frame header
             _header = 0;
             _isOpen = false;
             _socketBuffer = new SocketBuffer();
-
-            _protocol = gcnew TBinaryProtocol(this);
         }
 
 

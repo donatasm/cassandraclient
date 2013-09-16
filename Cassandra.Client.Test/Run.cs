@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Apache.Cassandra;
 using Cassandra.Client.Async;
@@ -14,6 +15,8 @@ namespace Cassandra.Client.Test
         private const int RequestCount = 1000;
         private const int TotalRequests = ConcurrentClients * RequestCount;
 
+        private static readonly IPEndPoint EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1337);
+
         private static void Main()
         {
             //RunTest(DescribeVersion);
@@ -24,7 +27,7 @@ namespace Cassandra.Client.Test
         {
             var elapsedMs = new long[RequestCount];
             var stopwatch = new Stopwatch();
-            var args = new DescribeVersionArgs();
+            var args = new DescribeVersionArgs(EndPoint);
 
             for (var i = 0; i < RequestCount; i++)
             {
@@ -40,7 +43,7 @@ namespace Cassandra.Client.Test
         {
             var elapsedMs = new long[RequestCount];
             var stopwatch = new Stopwatch();
-            var args = new GetSliceArgs("Keyspace#1")
+            var args = new GetSliceArgs(EndPoint, "Keyspace#1")
             {
                 Key = BitConverter.GetBytes(10),
                 Column_parent = new ColumnParent(),

@@ -16,8 +16,7 @@ namespace Cassandra
 
             while (contextQueue->TryDequeue(context))
             {
-                const char* address = context->_address;
-                int port = context->_port;
+                IPEndPoint^ endPoint = context->_args->EndPoint;
 
                 CassandraClient^ client = context->_client;
                 Queue<CassandraTransport^>^ transportPool = client->_transportPool;
@@ -30,7 +29,7 @@ namespace Cassandra
                 }
                 else
                 {
-                    transport = gcnew CassandraTransport(address, port, notifier->loop);
+                    transport = gcnew CassandraTransport(endPoint, notifier->loop);
                 }
 
                 // check if keyspace needs to be set
@@ -39,8 +38,7 @@ namespace Cassandra
                     // send set keyspace args before the original args is sent
 
                     String^ keyspace = context->_args->Keyspace;
-                    SetKeyspaceArgs^ setKeyspaceArgs = gcnew SetKeyspaceArgs();
-                    setKeyspaceArgs->Keyspace = keyspace;
+                    SetKeyspaceArgs^ setKeyspaceArgs = gcnew SetKeyspaceArgs(endPoint, keyspace);
                     SetKeyspaceContext^ setKeyspaceContext = gcnew SetKeyspaceContext(context, keyspace);
                     ResultCallback^ setKeyspaceCompleted = gcnew ResultCallback(setKeyspaceContext, &SetKeyspaceContext::Completed);
                     transport->_context = gcnew CassandraContext(setKeyspaceArgs, setKeyspaceCompleted, client);

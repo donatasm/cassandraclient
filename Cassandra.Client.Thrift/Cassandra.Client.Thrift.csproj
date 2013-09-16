@@ -48,6 +48,7 @@
     <Reference Include="Apache.Cassandra">
       <HintPath>..\Lib\Apache.Cassandra.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
     <Reference Include="Thrift">
       <HintPath>..\Lib\Thrift.dll</HintPath>
     </Reference>

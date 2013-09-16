@@ -10,6 +10,7 @@ using namespace System;
 using namespace System::IO;
 using namespace System::Collections::Concurrent;
 using namespace System::Collections::Generic;
+using namespace System::Net;
 using namespace System::Runtime::InteropServices;
 using namespace System::Threading;
 using namespace Thrift::Protocol;
@@ -59,8 +60,6 @@ namespace Cassandra
         {
         public:
             CassandraContext(IArgs^ args, ResultCallback^ resultCallback, CassandraClient^ client);
-            const char* _address;
-            int _port;
             initonly CassandraClient^ _client;
             initonly IArgs^ _args;
             initonly ResultCallback^ _resultCallback;
@@ -100,7 +99,7 @@ namespace Cassandra
         private ref class CassandraTransport sealed : TTransport, ICassandraTransport
         {
         public:
-            CassandraTransport(const char* address, int port, uv_loop_t* loop);
+            CassandraTransport(IPEndPoint^ endPoint, uv_loop_t* loop);
             ~CassandraTransport();
             virtual void Open() override;
             virtual void Close() override;
@@ -121,6 +120,7 @@ namespace Cassandra
             SocketBuffer* _socketBuffer;
             CassandraContext^ _context;
             initonly TBinaryProtocol^ _protocol;
+            initonly IPEndPoint^ _endPoint;
             int _header;
             int _position;
             bool _isOpen;
