@@ -35,12 +35,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CassandraClientAsync.cs" />
+    <Compile Include="Ring.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Apache.Cassandra">
       <HintPath>..\Lib\Apache.Cassandra.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Numerics" />
     <Reference Include="Thrift">
       <HintPath>..\Lib\Thrift.dll</HintPath>
     </Reference>

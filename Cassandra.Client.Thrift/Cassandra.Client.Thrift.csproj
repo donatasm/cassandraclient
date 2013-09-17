@@ -34,6 +34,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DescribeRingArgs.cs" />
+    <Compile Include="DescribeRingResult.cs" />
     <Compile Include="DescribeVersionArgs.cs" />
     <Compile Include="DescribeVersionResult.cs" />
     <Compile Include="GetSliceArgs.cs" />

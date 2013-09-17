@@ -12,6 +12,11 @@ namespace Cassandra.Client.Async
             return client.SendAsync(args, new DescribeVersionResult());
         }
 
+        public static Task<List<TokenRange>> DescribeRingAsync(this CassandraClient client, DescribeRingArgs args)
+        {
+            return client.SendAsync(args, new DescribeRingResult());
+        }
+
         public static Task<List<ColumnOrSuperColumn>> GetSliceAsync(this CassandraClient client, GetSliceArgs args)
         {
             return client.SendAsync(args, new GetSliceResult());
