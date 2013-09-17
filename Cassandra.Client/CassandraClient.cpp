@@ -85,6 +85,12 @@ namespace Cassandra
                 while (true)
                 {
                     ICassandraTransport^ transport = _transportPool->Get(endPoint);
+
+                    if (transport == nullptr)
+                    {
+                        break;
+                    }
+
                     transport->Close();
                 }
             }
