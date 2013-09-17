@@ -6,35 +6,34 @@ namespace Cassandra
     {
         CassandraTransportPool::CassandraTransportPool()
         {
-            _pool = gcnew Dictionary<IPEndPoint^, Queue<CassandraTransport^>^>();
+            _pool = gcnew Dictionary<IPEndPoint^, Queue<ICassandraTransport^>^>();
         }
 
 
-        void CassandraTransportPool::Add(CassandraTransport^ transport)
+        void CassandraTransportPool::Add(ICassandraTransport^ transport)
         {
-            Queue<CassandraTransport^>^ endPointPool;
+            Queue<ICassandraTransport^>^ endPointPool;
 
-            if (!_pool->TryGetValue(transport->_endPoint, endPointPool))
+            if (!_pool->TryGetValue(transport->EndPoint, endPointPool))
             {
-                endPointPool = gcnew Queue<CassandraTransport^>();
+                endPointPool = gcnew Queue<ICassandraTransport^>();
+                _pool->Add(transport->EndPoint, endPointPool);
             }
 
             endPointPool->Enqueue(transport);
         }
 
 
-        bool CassandraTransportPool::TryGet(IPEndPoint^ endPoint, CassandraTransport^ %transport)
+        ICassandraTransport^ CassandraTransportPool::Get(IPEndPoint^ endPoint)
         {
-            Queue<CassandraTransport^>^ endPointPool;
+            Queue<ICassandraTransport^>^ endPointPool;
 
             if (_pool->TryGetValue(endPoint, endPointPool) && (endPointPool->Count > 0))
             {
-                transport = endPointPool->Dequeue();
-                return true;
+                return endPointPool->Dequeue();
             }
 
-            transport = nullptr;
-            return false;
+            return nullptr;
         }
 
 

@@ -19,10 +19,12 @@ namespace Cassandra
                 IPEndPoint^ endPoint = context->_args->EndPoint;
 
                 CassandraClient^ client = context->_client;
-                CassandraTransport^ transport;
 
                 // try get transport from a pool
-                if (!client->_transportPool->TryGet(endPoint, transport))
+                CassandraTransport^ transport = (CassandraTransport^)client->_transportPool->Get(endPoint);
+
+                // or create new if no pooled connections are available
+                if (transport == nullptr)
                 {
                     transport = gcnew CassandraTransport(endPoint, notifier->loop);
                 }
@@ -80,10 +82,9 @@ namespace Cassandra
 
             for each(IPEndPoint^ endPoint in _transportPool->GetEndPoints())
             {
-                CassandraTransport^ transport;
-
-                while (_transportPool->TryGet(endPoint, transport))
+                while (true)
                 {
+                    ICassandraTransport^ transport = _transportPool->Get(endPoint);
                     transport->Close();
                 }
             }

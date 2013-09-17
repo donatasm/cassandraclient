@@ -273,6 +273,12 @@ namespace Cassandra
         }
 
 
+        IPEndPoint^ CassandraTransport::EndPoint::get()
+        {
+            return _endPoint;
+        }
+
+
         void* CassandraTransport::ToPointer()
         {
             return GCHandle::ToIntPtr(_handle).ToPointer();

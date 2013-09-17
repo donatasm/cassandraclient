@@ -11,12 +11,14 @@ using namespace System::IO;
 using namespace System::Collections::Concurrent;
 using namespace System::Collections::Generic;
 using namespace System::Net;
+using namespace System::Runtime::CompilerServices;
 using namespace System::Runtime::InteropServices;
 using namespace System::Threading;
 using namespace Thrift::Protocol;
 using namespace Thrift::Transport;
 using namespace Cassandra::Client::Thrift;
 
+[assembly:InternalsVisibleTo("Cassandra.Client.Test")];
 
 namespace Cassandra
 {
@@ -91,6 +93,7 @@ namespace Cassandra
 
         public interface class ICassandraTransport
         {
+            property IPEndPoint^ EndPoint { IPEndPoint^ get(); }
             void Recycle();
             void Close();
         };
@@ -108,6 +111,7 @@ namespace Cassandra
             virtual void Write(array<byte>^ buf, int off, int len) override;
             virtual void Flush() override;
             virtual void Recycle();
+            virtual property IPEndPoint^ EndPoint { IPEndPoint^ get(); }
             void PrepareWrite();
             void* ToPointer();
             static CassandraTransport^ FromPointer(void* ptr);
@@ -120,7 +124,6 @@ namespace Cassandra
             SocketBuffer* _socketBuffer;
             CassandraContext^ _context;
             initonly TBinaryProtocol^ _protocol;
-            initonly IPEndPoint^ _endPoint;
             int _header;
             int _position;
             bool _isOpen;
@@ -130,6 +133,7 @@ namespace Cassandra
             int _port;
             uv_loop_t* _loop;
             GCHandle _handle;
+            initonly IPEndPoint^ _endPoint;
         };
 
 
@@ -148,11 +152,11 @@ namespace Cassandra
         {
         public:
             CassandraTransportPool();
-            void Add(CassandraTransport^ transport);
-            bool TryGet(IPEndPoint^ endPoint, CassandraTransport^ %transport);
+            void Add(ICassandraTransport^ transport);
+            ICassandraTransport^ CassandraTransportPool::Get(IPEndPoint^ endPoint);
             IEnumerable<IPEndPoint^>^ GetEndPoints();
         private:
-            Dictionary<IPEndPoint^, Queue<CassandraTransport^>^>^ _pool;
+            Dictionary<IPEndPoint^, Queue<ICassandraTransport^>^>^ _pool;
         };
     }
 }
