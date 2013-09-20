@@ -16,6 +16,7 @@
     <ClCompile Include="CassandraContext.cpp" />
     <ClCompile Include="SetKeyspaceContext.cpp" />
     <ClCompile Include="CassandraTransportPool.cpp" />
+    <ClCompile Include="CassandraClientStats.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

@@ -4,6 +4,7 @@
 
 #define FRAME_HEADER_SIZE 4 // Frame header size
 #define MAX_FRAME_SIZE 65536 // Maximum size of a frame including headers
+#define MAX_ENDPOINT_TRANSPORT_COUNT 64 // default value for maximum transports created for each endpoint
 
 
 using namespace System;
@@ -71,6 +72,20 @@ namespace Cassandra
         };
 
 
+        public ref class CassandraClientStats
+        {
+        public:
+            virtual void IncrementArgsEnqueued();
+            virtual void IncrementArgsDequeued();
+            virtual void IncrementTransportOpen(IPEndPoint^ endPoint);
+            virtual void IncrementTransportClose(IPEndPoint^ endPoint);
+            virtual void IncrementTransportRecycle(IPEndPoint^ endPoint);
+            virtual void IncrementTransportSendFrame(IPEndPoint^ endPoint);
+            virtual void IncrementTransportReceiveFrame(IPEndPoint^ endPoint);
+            virtual void IncrementTransportError(IPEndPoint^ endPoint);
+        };
+
+
         private ref class CassandraTransport sealed : TTransport, ICassandraTransport
         {
         public:
@@ -103,7 +118,7 @@ namespace Cassandra
             {
             public:
                 Factory(int maxEndPointTransportCount, uv_loop_t* loop);
-                CassandraTransport^ CreateTransport(IPEndPoint^ endPoint);
+                CassandraTransport^ CreateTransport(IPEndPoint^ endPoint, CassandraClientStats^ stats);
                 void CloseTransport(IPEndPoint^ endPoint);
             private:
                 uv_loop_t* _loop;
@@ -112,7 +127,7 @@ namespace Cassandra
             };
 
         private:
-            CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, uv_loop_t* loop);
+            CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, CassandraClientStats^ stats, uv_loop_t* loop);
 
             const char* _address;
             int _port;
@@ -120,6 +135,7 @@ namespace Cassandra
             GCHandle _handle;
             initonly IPEndPoint^ _endPoint;
             initonly CassandraTransport::Factory^ _factory;
+            initonly CassandraClientStats^ _stats;
         };
 
 
@@ -149,21 +165,25 @@ namespace Cassandra
         public ref class CassandraClient sealed
         {
         public:
+            CassandraClient(CassandraClientStats^ stats, int maxEndPointTransportCount);
             CassandraClient(int maxEndPointTransportCount);
+            CassandraClient();
             ~CassandraClient();
             void Send(IArgs^ args, ResultCallback^ resultCallback);
             void Stop();
             void Run();
             CassandraClient^ RunAsync();
         internal:
-            initonly CassandraContextQueue^ _contextQueue;
-            initonly CassandraTransportPool^ _transportPool;
-            initonly CassandraTransport::Factory^ _factory;
+            CassandraContextQueue^ _contextQueue;
+            CassandraTransportPool^ _transportPool;
+            CassandraTransport::Factory^ _factory;
+            CassandraClientStats^ _stats;
         private:
             uv_loop_t* _loop;
             uv_async_t* _notifier;
             uv_async_t* _stop;
             void RunInternal();
+            void Initialize(CassandraClientStats^ stats, int maxEndPointTransportCount);
         };
 
 

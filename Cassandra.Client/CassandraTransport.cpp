@@ -121,12 +121,13 @@ namespace Cassandra
         }
 
 
-        CassandraTransport::CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, uv_loop_t* loop)
+        CassandraTransport::CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, CassandraClientStats^ stats, uv_loop_t* loop)
         {
             _handle = GCHandle::Alloc(this);
 
             _endPoint = endPoint;
             _factory = factory;
+            _stats = stats;
             _protocol = gcnew TBinaryProtocol(this);
 
             _loop = loop;
@@ -147,6 +148,8 @@ namespace Cassandra
 
         void CassandraTransport::Open()
         {
+            _stats->IncrementTransportOpen(_endPoint);
+
             struct sockaddr_in address;
 
             int error;
@@ -180,6 +183,8 @@ namespace Cassandra
 
         void CassandraTransport::Close()
         {
+            _stats->IncrementTransportClose(_endPoint);
+
             _isOpen = false;
 
             if (_handle.IsAllocated)
@@ -268,6 +273,8 @@ namespace Cassandra
 
         void CassandraTransport::Recycle()
         {
+            _stats->IncrementTransportRecycle(_endPoint);
+
             // prepare for the next frame to be written
             PrepareWrite();
 
@@ -297,6 +304,8 @@ namespace Cassandra
 
         void CassandraTransport::SendFrame()
         {
+            _stats->IncrementTransportSendFrame(_endPoint);
+
             _header = _position - FRAME_HEADER_SIZE;
 
             _socketBuffer->buffer[0] = (0xFF & (_header >> 24));
@@ -323,6 +332,8 @@ namespace Cassandra
 
         void CassandraTransport::ReceiveFrame()
         {
+            _stats->IncrementTransportReceiveFrame(_endPoint);
+
             _position = 0;
             _header = 0;
 
@@ -337,6 +348,8 @@ namespace Cassandra
 
         void CassandraTransport::SetError(Exception^ exception)
         {
+            _stats->IncrementTransportError(_endPoint);
+
             _context->_resultCallback(_protocol, exception);
         }
 
@@ -355,7 +368,7 @@ namespace Cassandra
         }
 
 
-        CassandraTransport^ CassandraTransport::Factory::CreateTransport(IPEndPoint^ endPoint)
+        CassandraTransport^ CassandraTransport::Factory::CreateTransport(IPEndPoint^ endPoint, CassandraClientStats^ stats)
         {
             int endPointTransportCount;
 
@@ -371,7 +384,7 @@ namespace Cassandra
 
             _endPointTransportCount[endPoint] = endPointTransportCount + 1;
 
-            return gcnew CassandraTransport(endPoint, this, _loop);
+            return gcnew CassandraTransport(endPoint, this, stats, _loop);
         }
 
 

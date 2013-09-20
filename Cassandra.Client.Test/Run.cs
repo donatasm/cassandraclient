@@ -63,7 +63,8 @@ namespace Cassandra.Client.Test
 
         private static void RunTest(Func<CassandraClient, Task<long[]>> test)
         {
-            var client = new CassandraClient(ConcurrentClients).RunAsync();
+            var stats = new ConsoleCassandraClientStats();
+            var client = new CassandraClient(stats, ConcurrentClients).RunAsync();
             var clients = new Task<long[]>[ConcurrentClients];
 
             var stopwatch = Stopwatch.StartNew();
@@ -74,6 +75,8 @@ namespace Cassandra.Client.Test
             Task.WaitAll(clients);
             var totalElapsed = stopwatch.Elapsed;
 
+            client.Dispose();
+
             var elapsedMs = clients.SelectMany(c => c.Result).OrderBy(e => e).ToArray();
 
             Console.WriteLine("Throughput: {0:#.##} req/s", TotalRequests / totalElapsed.TotalSeconds);
@@ -83,6 +86,20 @@ namespace Cassandra.Client.Test
             Console.WriteLine("80%: {0}", elapsedMs[(int)(TotalRequests * .8)]);
             Console.WriteLine("95%: {0}", elapsedMs[(int)(TotalRequests * .95)]);
             Console.WriteLine("99%: {0}", elapsedMs[(int)(TotalRequests * .99)]);
+            Console.WriteLine();
+            Console.WriteLine("Args enqueued {0}", stats.ArgsEnqueued);
+            Console.WriteLine("Args dequeued {0}", stats.ArgsDequeued);
+            Console.WriteLine();
+            foreach (var counter in stats.EndPointCounters)
+            {
+                Console.WriteLine("{0}:", counter.EndPoint);
+                Console.WriteLine("\topen count: {0}", counter.OpenCount);
+                Console.WriteLine("\tclose count: {0}", counter.CloseCount);
+                Console.WriteLine("\trecycle count: {0}", counter.RecycleCount);
+                Console.WriteLine("\tsend frame count: {0}", counter.SendFrameCount);
+                Console.WriteLine("\treceive frame count: {0}", counter.ReceiveFrameCount);
+                Console.WriteLine("\terror count: {0}", counter.ErrorCount);
+            }
             Console.WriteLine();
         }
     }

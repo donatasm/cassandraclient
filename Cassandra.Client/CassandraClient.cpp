@@ -16,9 +16,11 @@ namespace Cassandra
 
             while (contextQueue->TryDequeue(context))
             {
-                IPEndPoint^ endPoint = context->_args->EndPoint;
-
                 CassandraClient^ client = context->_client;
+
+                client->_stats->IncrementArgsDequeued();
+
+                IPEndPoint^ endPoint = context->_args->EndPoint;
 
                 // try get transport from a pool
                 CassandraTransport^ transport = (CassandraTransport^)client->_transportPool->Get(endPoint);
@@ -26,12 +28,12 @@ namespace Cassandra
                 // or try create new if no pooled transports are available
                 if (transport == nullptr)
                 {
-                    transport = client->_factory->CreateTransport(endPoint);
+                    transport = client->_factory->CreateTransport(endPoint, client->_stats);
 
                     // transport limit reached
                     if (transport == nullptr)
                     {
-                        context->_resultCallback(nullptr, gcnew TTransportException("Transport limit reached."));
+                        transport->SetError(gcnew TTransportException("Transport limit reached."));
                         continue;
                     }
                 }
@@ -63,20 +65,21 @@ namespace Cassandra
         }
 
 
+        CassandraClient::CassandraClient(CassandraClientStats^ stats, int maxEndPointTransportCount)
+        {
+            Initialize(stats, maxEndPointTransportCount);
+        }
+
+
         CassandraClient::CassandraClient(int maxEndPointTransportCount)
         {
-            _loop = uv_loop_new();
+            Initialize(gcnew CassandraClientStats(), maxEndPointTransportCount);
+        }
 
-            _contextQueue = gcnew CassandraContextQueue();
-            _transportPool = gcnew CassandraTransportPool();
-            _factory = gcnew CassandraTransport::Factory(maxEndPointTransportCount, _loop);
 
-            _notifier = new uv_async_t();
-            _notifier->data = _contextQueue->ToPointer();
-            uv_async_init(_loop, _notifier, NotifyCompleted);
-
-            _stop = new uv_async_t();
-            uv_async_init(_loop, _stop, StopCompleted);
+        CassandraClient::CassandraClient()
+        {
+            Initialize(gcnew CassandraClientStats(), MAX_ENDPOINT_TRANSPORT_COUNT);
         }
 
 
@@ -123,6 +126,8 @@ namespace Cassandra
 
             _contextQueue->Enqueue(context);
 
+            _stats->IncrementArgsEnqueued();
+
             // notify that there are requests pending
             uv_async_send(_notifier);
         }
@@ -147,6 +152,30 @@ namespace Cassandra
         {
             this->Run();
             delete this;
+        }
+
+
+        void CassandraClient::Initialize(CassandraClientStats^ stats, int maxEndPointTransportCount)
+        {
+            if (stats == nullptr)
+                throw gcnew ArgumentNullException("stats");
+
+            if (maxEndPointTransportCount < 1)
+                throw gcnew ArgumentOutOfRangeException("maxEndPointTransportCount");
+
+            _loop = uv_loop_new();
+
+            _contextQueue = gcnew CassandraContextQueue();
+            _transportPool = gcnew CassandraTransportPool();
+            _factory = gcnew CassandraTransport::Factory(maxEndPointTransportCount, _loop);
+            _stats = stats;
+
+            _notifier = new uv_async_t();
+            _notifier->data = _contextQueue->ToPointer();
+            uv_async_init(_loop, _notifier, NotifyCompleted);
+
+            _stop = new uv_async_t();
+            uv_async_init(_loop, _stop, StopCompleted);
         }
     }
 }

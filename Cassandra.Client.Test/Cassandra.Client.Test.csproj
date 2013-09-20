@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CassandraTransportPoolTest.cs" />
+    <Compile Include="ConsoleCassandraClientStats.cs" />
     <Compile Include="Run.cs" />
   </ItemGroup>
   <ItemGroup>

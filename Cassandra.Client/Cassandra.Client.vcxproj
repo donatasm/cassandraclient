@@ -81,6 +81,7 @@
     <ClInclude Include="CassandraClient.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CassandraClientStats.cpp" />
     <ClCompile Include="CassandraContextQueue.cpp" />
     <ClCompile Include="CassandraTransport.cpp" />
     <ClCompile Include="CassandraClient.cpp" />
