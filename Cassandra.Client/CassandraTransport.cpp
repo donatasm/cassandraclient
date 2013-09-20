@@ -121,16 +121,17 @@ namespace Cassandra
         }
 
 
-        CassandraTransport::CassandraTransport(IPEndPoint^ endPoint, uv_loop_t* loop)
+        CassandraTransport::CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, uv_loop_t* loop)
         {
             _handle = GCHandle::Alloc(this);
 
             _endPoint = endPoint;
+            _factory = factory;
             _protocol = gcnew TBinaryProtocol(this);
 
+            _loop = loop;
             _address = static_cast<char*>(Marshal::StringToHGlobalAnsi(endPoint->Address->ToString()).ToPointer());
             _port = endPoint->Port;
-            _loop = loop;
             _position = FRAME_HEADER_SIZE; // reserve first bytes for frame header
             _header = 0;
             _isOpen = false;
@@ -189,6 +190,8 @@ namespace Cassandra
             _socketBuffer->socket.data = _socketBuffer;
 
             uv_close((uv_handle_t*)&_socketBuffer->socket, CloseCompleted);
+
+            _factory->CloseTransport(_endPoint);
         }
 
 
@@ -341,6 +344,40 @@ namespace Cassandra
         void CassandraTransport::SetError(int error)
         {
             SetError(UvException::CreateFrom(error));
+        }
+
+
+        CassandraTransport::Factory::Factory(int maxEndPointTransportCount, uv_loop_t* loop)
+        {
+            _maxEndPointTransportCount = maxEndPointTransportCount;
+            _loop = loop;
+            _endPointTransportCount = gcnew Dictionary<IPEndPoint^, int>();
+        }
+
+
+        CassandraTransport^ CassandraTransport::Factory::CreateTransport(IPEndPoint^ endPoint)
+        {
+            int endPointTransportCount;
+
+            if (!_endPointTransportCount->TryGetValue(endPoint, endPointTransportCount))
+            {
+                _endPointTransportCount->Add(endPoint, 0);
+            }
+
+            if (endPointTransportCount == _maxEndPointTransportCount)
+            {
+                return nullptr;
+            }
+
+            _endPointTransportCount[endPoint] = endPointTransportCount + 1;
+
+            return gcnew CassandraTransport(endPoint, this, _loop);
+        }
+
+
+        void CassandraTransport::Factory::CloseTransport(IPEndPoint^ endPoint)
+        {
+            _endPointTransportCount[endPoint] = _endPointTransportCount[endPoint] - 1;
         }
     }
 }

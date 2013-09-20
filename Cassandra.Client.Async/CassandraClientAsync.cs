@@ -28,8 +28,6 @@ namespace Cassandra.Client.Async
 
             client.Send(args, (protocol, exception) =>
                 {
-                    var transport = (ICassandraTransport)protocol.Transport;
-
                     // check for transport exceptions
                     if (exception == null)
                     {
@@ -45,13 +43,20 @@ namespace Cassandra.Client.Async
                             tcs.TrySetException(result.Exception);
                         }
 
+                        var transport = (ICassandraTransport)protocol.Transport;
+
                         transport.Recycle();
                     }
                     else
                     {
                         tcs.TrySetException(exception);
 
-                        transport.Close();
+                        if (protocol != null && protocol.Transport != null)
+                        {
+                            var transport = (ICassandraTransport) protocol.Transport;
+
+                            transport.Close();
+                        }
                     }
                 });
 

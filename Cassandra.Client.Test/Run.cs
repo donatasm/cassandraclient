@@ -19,8 +19,8 @@ namespace Cassandra.Client.Test
 
         private static void Main()
         {
-            //RunTest(DescribeVersion);
-            RunTest(GetSlice);
+            RunTest(DescribeVersion);
+            //RunTest(GetSlice);
         }
 
         private static async Task<long[]> DescribeVersion(CassandraClient client)
@@ -63,7 +63,7 @@ namespace Cassandra.Client.Test
 
         private static void RunTest(Func<CassandraClient, Task<long[]>> test)
         {
-            var client = new CassandraClient().RunAsync();
+            var client = new CassandraClient(ConcurrentClients).RunAsync();
             var clients = new Task<long[]>[ConcurrentClients];
 
             var stopwatch = Stopwatch.StartNew();

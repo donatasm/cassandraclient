@@ -27,35 +27,7 @@ namespace Cassandra
         public delegate void ResultCallback(TProtocol^ protocol, Exception^ exception);
 
 
-        ref class CassandraContextQueue;
-        ref class CassandraTransportPool;
-        public ref class CassandraClient sealed
-        {
-        public:
-            CassandraClient();
-            ~CassandraClient();
-            void Send(IArgs^ args, ResultCallback^ resultCallback);
-            void Stop();
-            void Run();
-            CassandraClient^ RunAsync();
-        internal:
-            initonly CassandraContextQueue^ _contextQueue;
-            initonly CassandraTransportPool^ _transportPool;
-        private:
-            uv_loop_t* _loop;
-            uv_async_t* _notifier;
-            uv_async_t* _stop;
-            void RunInternal();
-        };
-
-
-        public ref class UvException sealed : Exception
-        {
-        internal:
-            UvException(String^ message);
-            static UvException^ CreateFrom(int error);
-            static void Throw(int error);
-        };
+        ref class CassandraClient;
 
 
         private ref class CassandraContext sealed
@@ -102,7 +74,6 @@ namespace Cassandra
         private ref class CassandraTransport sealed : TTransport, ICassandraTransport
         {
         public:
-            CassandraTransport(IPEndPoint^ endPoint, uv_loop_t* loop);
             ~CassandraTransport();
             virtual void Open() override;
             virtual void Close() override;
@@ -128,12 +99,27 @@ namespace Cassandra
             int _position;
             bool _isOpen;
 
+            ref class Factory
+            {
+            public:
+                Factory(int maxEndPointTransportCount, uv_loop_t* loop);
+                CassandraTransport^ CreateTransport(IPEndPoint^ endPoint);
+                void CloseTransport(IPEndPoint^ endPoint);
+            private:
+                uv_loop_t* _loop;
+                initonly int _maxEndPointTransportCount;
+                initonly Dictionary<IPEndPoint^, int>^ _endPointTransportCount;
+            };
+
         private:
+            CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, uv_loop_t* loop);
+
             const char* _address;
             int _port;
             uv_loop_t* _loop;
             GCHandle _handle;
             initonly IPEndPoint^ _endPoint;
+            initonly CassandraTransport::Factory^ _factory;
         };
 
 
@@ -157,6 +143,36 @@ namespace Cassandra
             IEnumerable<IPEndPoint^>^ GetEndPoints();
         private:
             Dictionary<IPEndPoint^, Queue<ICassandraTransport^>^>^ _pool;
+        };
+
+
+        public ref class CassandraClient sealed
+        {
+        public:
+            CassandraClient(int maxEndPointTransportCount);
+            ~CassandraClient();
+            void Send(IArgs^ args, ResultCallback^ resultCallback);
+            void Stop();
+            void Run();
+            CassandraClient^ RunAsync();
+        internal:
+            initonly CassandraContextQueue^ _contextQueue;
+            initonly CassandraTransportPool^ _transportPool;
+            initonly CassandraTransport::Factory^ _factory;
+        private:
+            uv_loop_t* _loop;
+            uv_async_t* _notifier;
+            uv_async_t* _stop;
+            void RunInternal();
+        };
+
+
+        public ref class UvException sealed : Exception
+        {
+        internal:
+            UvException(String^ message);
+            static UvException^ CreateFrom(int error);
+            static void Throw(int error);
         };
     }
 }

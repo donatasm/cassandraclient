@@ -23,10 +23,17 @@ namespace Cassandra
                 // try get transport from a pool
                 CassandraTransport^ transport = (CassandraTransport^)client->_transportPool->Get(endPoint);
 
-                // or create new if no pooled connections are available
+                // or try create new if no pooled transports are available
                 if (transport == nullptr)
                 {
-                    transport = gcnew CassandraTransport(endPoint, notifier->loop);
+                    transport = client->_factory->CreateTransport(endPoint);
+
+                    // transport limit reached
+                    if (transport == nullptr)
+                    {
+                        context->_resultCallback(nullptr, gcnew TTransportException("Transport limit reached."));
+                        continue;
+                    }
                 }
 
                 // check if keyspace needs to be set
@@ -56,12 +63,13 @@ namespace Cassandra
         }
 
 
-        CassandraClient::CassandraClient()
+        CassandraClient::CassandraClient(int maxEndPointTransportCount)
         {
+            _loop = uv_loop_new();
+
             _contextQueue = gcnew CassandraContextQueue();
             _transportPool = gcnew CassandraTransportPool();
-
-            _loop = uv_loop_new();
+            _factory = gcnew CassandraTransport::Factory(maxEndPointTransportCount, _loop);
 
             _notifier = new uv_async_t();
             _notifier->data = _contextQueue->ToPointer();
