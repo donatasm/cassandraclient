@@ -28,6 +28,20 @@ namespace Cassandra
         public delegate void ResultCallback(TProtocol^ protocol, Exception^ exception);
 
 
+        public ref class CassandraClientStats
+        {
+        public:
+            virtual void IncrementArgsEnqueued();
+            virtual void IncrementArgsDequeued();
+            virtual void IncrementTransportOpen(IPEndPoint^ endPoint);
+            virtual void IncrementTransportClose(IPEndPoint^ endPoint);
+            virtual void IncrementTransportRecycle(IPEndPoint^ endPoint);
+            virtual void IncrementTransportSendFrame(IPEndPoint^ endPoint);
+            virtual void IncrementTransportReceiveFrame(IPEndPoint^ endPoint);
+            virtual void IncrementTransportError(IPEndPoint^ endPoint);
+        };
+
+
         ref class CassandraClient;
 
 
@@ -35,6 +49,9 @@ namespace Cassandra
         {
         public:
             CassandraContext(IArgs^ args, ResultCallback^ resultCallback, CassandraClient^ client);
+            void SetError(Exception^ exception);
+            void SetError(int error);
+
             initonly CassandraClient^ _client;
             initonly IArgs^ _args;
             initonly ResultCallback^ _resultCallback;
@@ -72,20 +89,6 @@ namespace Cassandra
         };
 
 
-        public ref class CassandraClientStats
-        {
-        public:
-            virtual void IncrementArgsEnqueued();
-            virtual void IncrementArgsDequeued();
-            virtual void IncrementTransportOpen(IPEndPoint^ endPoint);
-            virtual void IncrementTransportClose(IPEndPoint^ endPoint);
-            virtual void IncrementTransportRecycle(IPEndPoint^ endPoint);
-            virtual void IncrementTransportSendFrame(IPEndPoint^ endPoint);
-            virtual void IncrementTransportReceiveFrame(IPEndPoint^ endPoint);
-            virtual void IncrementTransportError(IPEndPoint^ endPoint);
-        };
-
-
         private ref class CassandraTransport sealed : TTransport, ICassandraTransport
         {
         public:
@@ -103,8 +106,6 @@ namespace Cassandra
             static CassandraTransport^ FromPointer(void* ptr);
             void SendFrame();
             void ReceiveFrame();
-            void SetError(Exception^ exception);
-            void SetError(int error);
 
             String^ _keyspace;
             SocketBuffer* _socketBuffer;
@@ -118,7 +119,7 @@ namespace Cassandra
             {
             public:
                 Factory(int maxEndPointTransportCount, uv_loop_t* loop);
-                CassandraTransport^ CreateTransport(IPEndPoint^ endPoint, CassandraClientStats^ stats);
+                CassandraTransport^ CreateTransport(IPEndPoint^ endPoint);
                 void CloseTransport(IPEndPoint^ endPoint);
             private:
                 uv_loop_t* _loop;
@@ -127,7 +128,7 @@ namespace Cassandra
             };
 
         private:
-            CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, CassandraClientStats^ stats, uv_loop_t* loop);
+            CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, uv_loop_t* loop);
 
             const char* _address;
             int _port;
@@ -135,7 +136,6 @@ namespace Cassandra
             GCHandle _handle;
             initonly IPEndPoint^ _endPoint;
             initonly CassandraTransport::Factory^ _factory;
-            initonly CassandraClientStats^ _stats;
         };
 
 

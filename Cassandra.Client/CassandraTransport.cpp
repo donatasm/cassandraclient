@@ -17,7 +17,7 @@ namespace Cassandra
 
             if (status != 0)
             {
-                transport->SetError(status);
+                transport->_context->SetError(status);
                 return;
             }
 
@@ -33,7 +33,7 @@ namespace Cassandra
 
             if (status != 0)
             {
-                transport->SetError(status);
+                transport->_context->SetError(status);
                 return;
             }
 
@@ -49,13 +49,13 @@ namespace Cassandra
 
             if (nread < 0)
             {
-                transport->SetError((int)nread);
+                transport->_context->SetError((int)nread);
                 return;
             }
 
             if (transport->_position + nread > MAX_FRAME_SIZE)
             {
-                transport->SetError(MaximumFrameSizeExceeded());
+                transport->_context->SetError(MaximumFrameSizeExceeded());
                 return;
             }
 
@@ -93,7 +93,7 @@ namespace Cassandra
                 int error = uv_read_stop((uv_stream_t*)&transport->_socketBuffer->socket);
                 if (error != 0)
                 {
-                    transport->SetError(error);
+                    transport->_context->SetError(error);
                     return;
                 }
 
@@ -121,13 +121,12 @@ namespace Cassandra
         }
 
 
-        CassandraTransport::CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, CassandraClientStats^ stats, uv_loop_t* loop)
+        CassandraTransport::CassandraTransport(IPEndPoint^ endPoint, CassandraTransport::Factory^ factory, uv_loop_t* loop)
         {
             _handle = GCHandle::Alloc(this);
 
             _endPoint = endPoint;
             _factory = factory;
-            _stats = stats;
             _protocol = gcnew TBinaryProtocol(this);
 
             _loop = loop;
@@ -148,7 +147,7 @@ namespace Cassandra
 
         void CassandraTransport::Open()
         {
-            _stats->IncrementTransportOpen(_endPoint);
+            _context->_client->_stats->IncrementTransportOpen(_context->_args->EndPoint);
 
             struct sockaddr_in address;
 
@@ -157,14 +156,14 @@ namespace Cassandra
             error = uv_ip4_addr(_address, _port, &address);
             if (error != 0)
             {
-                SetError(error);
+                _context->SetError(error);
                 return;
             }
 
             error = uv_tcp_init(_loop, &_socketBuffer->socket);
             if (error != 0)
             {
-                SetError(error);
+                _context->SetError(error);
                 return;
             }
 
@@ -175,7 +174,7 @@ namespace Cassandra
             if (error != 0)
             {
                 delete connectRequest;
-                SetError(error);
+                _context->SetError(error);
                 return;
             }
         }
@@ -183,7 +182,7 @@ namespace Cassandra
 
         void CassandraTransport::Close()
         {
-            _stats->IncrementTransportClose(_endPoint);
+            _context->_client->_stats->IncrementTransportClose(_endPoint);
 
             _isOpen = false;
 
@@ -239,7 +238,7 @@ namespace Cassandra
         {
             if (_position + len > MAX_FRAME_SIZE)
             {
-                SetError(MaximumFrameSizeExceeded());
+                _context->SetError(MaximumFrameSizeExceeded());
                 return;
             }
 
@@ -273,7 +272,7 @@ namespace Cassandra
 
         void CassandraTransport::Recycle()
         {
-            _stats->IncrementTransportRecycle(_endPoint);
+            _context->_client->_stats->IncrementTransportRecycle(_endPoint);
 
             // prepare for the next frame to be written
             PrepareWrite();
@@ -304,7 +303,7 @@ namespace Cassandra
 
         void CassandraTransport::SendFrame()
         {
-            _stats->IncrementTransportSendFrame(_endPoint);
+            _context->_client->_stats->IncrementTransportSendFrame(_endPoint);
 
             _header = _position - FRAME_HEADER_SIZE;
 
@@ -324,7 +323,7 @@ namespace Cassandra
             if (error != 0)
             {
                 delete writeRequest;
-                SetError(error);
+                _context->SetError(error);
                 return;
             }
         }
@@ -332,7 +331,7 @@ namespace Cassandra
 
         void CassandraTransport::ReceiveFrame()
         {
-            _stats->IncrementTransportReceiveFrame(_endPoint);
+            _context->_client->_stats->IncrementTransportReceiveFrame(_endPoint);
 
             _position = 0;
             _header = 0;
@@ -340,23 +339,9 @@ namespace Cassandra
             int error = uv_read_start((uv_stream_t*)&_socketBuffer->socket, AllocateFrameBuffer, ReceiveFrameCompleted);
             if (error != 0)
             {
-                SetError(error);
+                _context->SetError(error);
                 return;
             }
-        }
-
-
-        void CassandraTransport::SetError(Exception^ exception)
-        {
-            _stats->IncrementTransportError(_endPoint);
-
-            _context->_resultCallback(_protocol, exception);
-        }
-
-
-        void CassandraTransport::SetError(int error)
-        {
-            SetError(UvException::CreateFrom(error));
         }
 
 
@@ -368,7 +353,7 @@ namespace Cassandra
         }
 
 
-        CassandraTransport^ CassandraTransport::Factory::CreateTransport(IPEndPoint^ endPoint, CassandraClientStats^ stats)
+        CassandraTransport^ CassandraTransport::Factory::CreateTransport(IPEndPoint^ endPoint)
         {
             int endPointTransportCount;
 
@@ -384,7 +369,7 @@ namespace Cassandra
 
             _endPointTransportCount[endPoint] = endPointTransportCount + 1;
 
-            return gcnew CassandraTransport(endPoint, this, stats, _loop);
+            return gcnew CassandraTransport(endPoint, this, _loop);
         }
 
 

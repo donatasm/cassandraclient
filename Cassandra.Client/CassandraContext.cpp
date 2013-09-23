@@ -10,5 +10,18 @@ namespace Cassandra
             _resultCallback = resultCallback;
             _client = client;
         }
+
+
+        void CassandraContext::SetError(Exception^ exception)
+        {
+            _client->_stats->IncrementTransportError(_args->EndPoint);
+            _resultCallback(nullptr, exception);
+        }
+
+
+        void CassandraContext::SetError(int error)
+        {
+            SetError(UvException::CreateFrom(error));
+        }
     }
 }

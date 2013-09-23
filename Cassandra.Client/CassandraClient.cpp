@@ -28,12 +28,12 @@ namespace Cassandra
                 // or try create new if no pooled transports are available
                 if (transport == nullptr)
                 {
-                    transport = client->_factory->CreateTransport(endPoint, client->_stats);
+                    transport = client->_factory->CreateTransport(endPoint);
 
                     // transport limit reached
                     if (transport == nullptr)
                     {
-                        transport->SetError(gcnew TTransportException("Transport limit reached."));
+                        context->SetError(gcnew TTransportException("Transport limit reached."));
                         continue;
                     }
                 }
