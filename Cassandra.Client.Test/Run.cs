@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Apache.Cassandra;
 using Cassandra.Client.Async;
 using Cassandra.Client.Thrift;
+using Thrift.Transport;
 
 namespace Cassandra.Client.Test
 {
@@ -19,11 +20,40 @@ namespace Cassandra.Client.Test
 
         private static void Main()
         {
-            RunTest(DescribeVersion);
+            RunTest(DescribeVersionDoNotWaitForResult);
             //RunTest(GetSlice);
         }
 
-        private static async Task<long[]> DescribeVersion(CassandraClient client)
+        private static Task<long[]> DescribeVersionDoNotWaitForResult(CassandraClient client)
+        {
+            var elapsedMs = new long[RequestCount];
+            var tasks = new Task[RequestCount];
+
+            for (var i = 0; i < RequestCount; i++)
+            {
+                var args = new DescribeVersionArgs(EndPoint);
+                var stopwatch = Stopwatch.StartNew();
+                var j = i;
+                tasks[i] = client.DescribeVersionAsync(args)
+                    .ContinueWith(t =>
+                    {
+                        elapsedMs[j] = stopwatch.ElapsedMilliseconds;
+
+                        if (t.IsFaulted)
+                        {
+                            // ReSharper disable PossibleNullReferenceException
+                            t.Exception.Handle(e => e is TTransportException);
+                            // ReSharper restore PossibleNullReferenceException
+                        }
+                    });
+            }
+
+            Task.WaitAll(tasks);
+
+            return Task.FromResult(elapsedMs);
+        }
+
+        private static async Task<long[]> DescribeVersionWaitForResult(CassandraClient client)
         {
             var elapsedMs = new long[RequestCount];
             var stopwatch = new Stopwatch();
@@ -39,7 +69,7 @@ namespace Cassandra.Client.Test
             return elapsedMs;
         }
 
-        private static async Task<long[]> GetSlice(CassandraClient client)
+        private static async Task<long[]> GetSliceWaitForResult(CassandraClient client)
         {
             var elapsedMs = new long[RequestCount];
             var stopwatch = new Stopwatch();
