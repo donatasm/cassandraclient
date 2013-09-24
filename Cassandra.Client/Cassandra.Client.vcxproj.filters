@@ -17,6 +17,7 @@
     <ClCompile Include="SetKeyspaceContext.cpp" />
     <ClCompile Include="CassandraTransportPool.cpp" />
     <ClCompile Include="CassandraClientStats.cpp" />
+    <ClCompile Include="TransportLimitException.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

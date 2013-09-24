@@ -88,6 +88,7 @@
     <ClCompile Include="CassandraContext.cpp" />
     <ClCompile Include="CassandraTransportPool.cpp" />
     <ClCompile Include="SetKeyspaceContext.cpp" />
+    <ClCompile Include="TransportLimitException.cpp" />
     <ClCompile Include="UvException.cpp" />
   </ItemGroup>
   <ItemGroup>

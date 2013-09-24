@@ -33,7 +33,7 @@ namespace Cassandra
                     // transport limit reached
                     if (transport == nullptr)
                     {
-                        context->SetError(gcnew TTransportException("Transport limit reached."));
+                        context->SetError(TransportLimitException::_instance);
                         continue;
                     }
                 }

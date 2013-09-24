@@ -194,5 +194,14 @@ namespace Cassandra
             static UvException^ CreateFrom(int error);
             static void Throw(int error);
         };
+
+
+        public ref class TransportLimitException : Exception
+        {
+        internal:
+            static initonly TransportLimitException^ _instance = gcnew TransportLimitException("Transport limit reached.");
+        private:
+            TransportLimitException(String^ message);
+        };
     }
 }
