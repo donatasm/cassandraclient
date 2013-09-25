@@ -35,6 +35,7 @@
   <ItemGroup>
     <Compile Include="CassandraTransportPoolTest.cs" />
     <Compile Include="ConsoleCassandraClientStats.cs" />
+    <Compile Include="KeyRangeBalancerTest.cs" />
     <Compile Include="Run.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +63,7 @@
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Numerics" />
     <Reference Include="Thrift, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\Thrift.dll</HintPath>
