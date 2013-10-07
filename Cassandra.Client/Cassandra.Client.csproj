@@ -4,13 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C82D56FF-C104-4DAD-A724-99CCB02263F8}</ProjectGuid>
+    <ProjectGuid>{A8DB8397-2E0B-43AA-A9EA-31796604D4B4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cassandra.Client.Async</RootNamespace>
-    <AssemblyName>Cassandra.Client.Async</AssemblyName>
+    <RootNamespace>Cassandra.Client</RootNamespace>
+    <AssemblyName>Cassandra.Client</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +23,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -30,33 +34,17 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CassandraClientAsync.cs" />
-    <Compile Include="KeyRangeBalancer.cs" />
-    <Compile Include="Ring.cs" />
+    <Compile Include="CassandraClient.cs" />
+    <Compile Include="CassandraClientStats.cs" />
+    <Compile Include="CassandraTransportPool.cs" />
+    <Compile Include="ICassandraTransport.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Apache.Cassandra">
-      <HintPath>..\Lib\Apache.Cassandra.dll</HintPath>
+    <Reference Include="NetUv">
+      <HintPath>..\Lib\NetUv.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="Thrift">
-      <HintPath>..\Lib\Thrift.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Cassandra.Client.Thrift\Cassandra.Client.Thrift.csproj">
-      <Project>{e7daf25a-6b34-4c75-b5a6-b64e7cc9469b}</Project>
-      <Name>Cassandra.Client.Thrift</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cassandra.Client\Cassandra.Client.csproj">
-      <Project>{A8DB8397-2E0B-43AA-A9EA-31796604D4B4}</Project>
-      <Name>Cassandra.Client</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

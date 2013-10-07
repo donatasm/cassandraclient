@@ -33,6 +33,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CassandraClientTest.cs" />
     <Compile Include="CassandraTransportPoolTest.cs" />
     <Compile Include="ConsoleCassandraClientStats.cs" />
     <Compile Include="KeyRangeBalancerTest.cs" />
@@ -47,8 +48,8 @@
       <Project>{E7DAF25A-6B34-4C75-B5A6-B64E7CC9469B}</Project>
       <Name>Cassandra.Client.Thrift</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Cassandra.Client\Cassandra.Client.vcxproj">
-      <Project>{e95d1550-70cb-4251-8eee-13430282f2f4}</Project>
+    <ProjectReference Include="..\Cassandra.Client\Cassandra.Client.csproj">
+      <Project>{A8DB8397-2E0B-43AA-A9EA-31796604D4B4}</Project>
       <Name>Cassandra.Client</Name>
     </ProjectReference>
   </ItemGroup>
@@ -58,6 +59,9 @@
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.1.1309.1617\lib\net40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="NetUv">
+      <HintPath>..\Lib\NetUv.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>

@@ -1,0 +1,133 @@
+ImageRuntimeVersion: v4.0.30319
+Assembly NetUv, Version=0.0.*, Culture=Invariant Language (Invariant Country): 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Class NetUv.UvCloseCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.MulticastDelegate
+    Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
+  Methods:
+    Invoke(IDisposable): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    BeginInvoke(IDisposable, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+Interface NetUv.IUvHandle: AutoLayout, AnsiClass, Class, Public, ClassSemanticsMask, Abstract, BeforeFieldInit
+  Methods:
+    Close(UvCloseCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+Class NetUv.UvHandle: AutoLayout, AnsiClass, Class, Public, Abstract, BeforeFieldInit
+  Interfaces:
+    NetUv.IUvHandle
+  Methods:
+    Close(UvCloseCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+Class NetUv.UvAllocCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.MulticastDelegate
+    Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
+  Methods:
+    Invoke(Int32): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    BeginInvoke(Int32, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+Class NetUv.UvBuffer: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+    Void .ctor(Byte[], Int32, Int32): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+Class NetUv.UvStreamCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.MulticastDelegate
+    Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
+  Methods:
+    Invoke(UvStream, Exception): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    BeginInvoke(UvStream, Exception, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+Class NetUv.UvStreamReadCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.MulticastDelegate
+    Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
+  Methods:
+    Invoke(UvStream, Int32, UvBuffer): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    BeginInvoke(UvStream, Int32, UvBuffer, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+Interface NetUv.IUvStream: AutoLayout, AnsiClass, Class, Public, ClassSemanticsMask, Abstract, BeforeFieldInit
+  Interfaces:
+    NetUv.IUvHandle
+  Methods:
+    Accept(UvStream): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+    Listen(Int32, UvStreamCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+    Write(UvBuffer, UvStreamCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+    ReadStart(UvAllocCb, UvStreamReadCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+    ReadStop(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+    Shutdown(UvStreamCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+Class NetUv.UvStream: AutoLayout, AnsiClass, Class, Public, Abstract, BeforeFieldInit
+  :NetUv.UvHandle
+  Interfaces:
+    NetUv.IUvStream
+  Fields:
+    Int32 EOF : Public, Static, InitOnly
+  Methods:
+    Accept(UvStream): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+    Listen(Int32, UvStreamCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+    Write(UvBuffer, UvStreamCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+    ReadStart(UvAllocCb, UvStreamReadCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+    ReadStop(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+    Shutdown(UvStreamCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+Class NetUv.UvTcpCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.MulticastDelegate
+    Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
+  Methods:
+    Invoke(UvTcp, Exception): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    BeginInvoke(UvTcp, Exception, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+Interface NetUv.IUvTcp: AutoLayout, AnsiClass, Class, Public, ClassSemanticsMask, Abstract, BeforeFieldInit
+  Interfaces:
+    NetUv.IUvStream
+    NetUv.IUvHandle
+  Methods:
+    Bind(String, Int32): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+    Connect(String, Int32, UvTcpCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+Class NetUv.UvTcp: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :NetUv.UvStream
+  Interfaces:
+    NetUv.IUvTcp
+    System.IDisposable
+  Methods:
+    Bind(String, Int32): PrivateScope, Public, Final, Virtual, HideBySig, VtableLayoutMask
+    Connect(String, Int32, UvTcpCb): PrivateScope, Public, Final, Virtual, HideBySig, VtableLayoutMask
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Interface NetUv.IUvAsync: AutoLayout, AnsiClass, Class, Public, ClassSemanticsMask, Abstract, BeforeFieldInit
+  Interfaces:
+    NetUv.IUvHandle
+    System.IDisposable
+  Methods:
+    Send(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+Class NetUv.UvAsyncCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.MulticastDelegate
+    Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
+  Methods:
+    Invoke(UvAsync, Exception): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    BeginInvoke(UvAsync, Exception, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+Class NetUv.UvAsync: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+  :NetUv.UvHandle
+  Interfaces:
+    NetUv.IUvAsync
+    System.IDisposable
+  Methods:
+    Send(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Interface NetUv.IUvLoop: AutoLayout, AnsiClass, Class, Public, ClassSemanticsMask, Abstract, BeforeFieldInit
+  Methods:
+    Run(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+    InitUvTcp(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+    InitUvAsync(UvAsyncCb): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract
+Class NetUv.UvLoop: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    NetUv.IUvLoop
+    System.IDisposable
+  Methods:
+    Run(): PrivateScope, Public, Final, Virtual, HideBySig, VtableLayoutMask
+    InitUvTcp(): PrivateScope, Public, Final, Virtual, HideBySig, VtableLayoutMask
+    InitUvAsync(UvAsyncCb): PrivateScope, Public, Final, Virtual, HideBySig, VtableLayoutMask
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Class NetUv.UvException: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.Exception
+  Properties:
+    System.String Error 'get ' : 
+  Methods:
+    get_Error(): PrivateScope, Public, HideBySig, SpecialName

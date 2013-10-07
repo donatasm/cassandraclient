@@ -26,39 +26,39 @@ namespace Cassandra.Client.Async
         {
             var tcs = new TaskCompletionSource<TResult>();
 
-            client.Send(args, (protocol, exception) =>
-                {
-                    // check for transport exceptions
-                    if (exception == null)
-                    {
-                        result.ReadMessage(protocol);
+            //client.Send(args, (protocol, exception) =>
+            //    {
+            //        // check for transport exceptions
+            //        if (exception == null)
+            //        {
+            //            result.ReadMessage(protocol);
 
-                        // check for protocol exceptions too
-                        if (result.Exception == null)
-                        {
-                            tcs.TrySetResult(result.Success);
-                        }
-                        else
-                        {
-                            tcs.TrySetException(result.Exception);
-                        }
+            //            // check for protocol exceptions too
+            //            if (result.Exception == null)
+            //            {
+            //                tcs.TrySetResult(result.Success);
+            //            }
+            //            else
+            //            {
+            //                tcs.TrySetException(result.Exception);
+            //            }
 
-                        var transport = (ICassandraTransport)protocol.Transport;
+            //            var transport = (ICassandraTransport)protocol.Transport;
 
-                        transport.Recycle();
-                    }
-                    else
-                    {
-                        tcs.TrySetException(exception);
+            //            transport.Recycle();
+            //        }
+            //        else
+            //        {
+            //            tcs.TrySetException(exception);
 
-                        if (protocol != null && protocol.Transport != null)
-                        {
-                            var transport = (ICassandraTransport) protocol.Transport;
+            //            if (protocol != null && protocol.Transport != null)
+            //            {
+            //                var transport = (ICassandraTransport) protocol.Transport;
 
-                            transport.Close();
-                        }
-                    }
-                });
+            //                transport.Close();
+            //            }
+            //        }
+            //    });
 
             return tcs.Task;
         }

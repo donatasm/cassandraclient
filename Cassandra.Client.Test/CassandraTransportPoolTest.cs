@@ -10,8 +10,9 @@ namespace Cassandra.Client.Test
         [Test]
         public void TryGetReturnsFalseForEmptyPool()
         {
+            ICassandraTransport transport;
             var pool = new CassandraTransportPool();
-            Assert.IsNull(pool.Get(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1337)));
+            Assert.False(pool.TryGet(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1337), out transport));
         }
 
         [Test]
@@ -24,7 +25,8 @@ namespace Cassandra.Client.Test
             var pool = new CassandraTransportPool();
             pool.Add(transport.Object);
 
-            var actualTransport = pool.Get(endPoint);
+            ICassandraTransport actualTransport;
+            Assert.IsTrue(pool.TryGet(endPoint, out actualTransport));
             Assert.IsNotNull(actualTransport);
             Assert.AreEqual(transport.Object, actualTransport);
         }
@@ -47,7 +49,7 @@ namespace Cassandra.Client.Test
             pool.Add(transport2.Object);
             pool.Add(transport3.Object);
 
-            CollectionAssert.AreEqual(new [] { endPoint1, endPoint2, endPoint3 }, pool.GetEndPoints());
+            CollectionAssert.AreEqual(new[] { endPoint1, endPoint2, endPoint3 }, pool.GetEndPoints());
         }
     }
 }
