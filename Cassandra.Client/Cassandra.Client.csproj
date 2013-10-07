@@ -46,6 +46,12 @@
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cassandra.Client.Thrift\Cassandra.Client.Thrift.csproj">
+      <Project>{E7DAF25A-6B34-4C75-B5A6-B64E7CC9469B}</Project>
+      <Name>Cassandra.Client.Thrift</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
+using Cassandra.Client.Thrift;
 using NetUv;
 
 namespace Cassandra.Client
 {
     public sealed class CassandraClient : IDisposable
     {
+        private const int DefaultMaxTransports = 64;
+
         private readonly IUvLoop _loop;
         private readonly CassandraClientStats _stats;
         private readonly int _maxEndPointTransportCount;
@@ -17,12 +21,17 @@ namespace Cassandra.Client
         // uv handle for stopping the loop
         private readonly IUvAsync _asyncStop;
 
-        public CassandraClient(int maxEndPointTransportCount = 64)
+        // uv handle for notifying the loop about new requests
+        private readonly IUvAsync _asyncSend;
+
+        private readonly ConcurrentQueue<CassandraContext> _contextQueue;
+
+        public CassandraClient(int maxEndPointTransportCount = DefaultMaxTransports)
             : this(new CassandraClientStats(), maxEndPointTransportCount)
         {
         }
 
-        public CassandraClient(CassandraClientStats stats, int maxEndPointTransportCount)
+        public CassandraClient(CassandraClientStats stats, int maxEndPointTransportCount = DefaultMaxTransports)
             : this(new UvLoop(), stats, maxEndPointTransportCount)
         {
         }
@@ -34,9 +43,23 @@ namespace Cassandra.Client
             _maxEndPointTransportCount = maxEndPointTransportCount;
 
             _loopStop = new ManualResetEventSlim();
+            _contextQueue = new ConcurrentQueue<CassandraContext>();
 
             // close all active loop handles, so loop thread can return
             _asyncStop = _loop.InitUvAsync((async, exception) => CloseAllHandles());
+
+            // notify context queue
+            _asyncSend = _loop.InitUvAsync((async, exception) => ProcessContextQueue());
+        }
+
+        public void SendAsync(IArgs args, Action<Exception> resultCb)
+        {
+            var context = new CassandraContext();
+
+            // enqueue and notify the loop about contexts pending
+            _contextQueue.Enqueue(context);
+            _asyncSend.Send();
+            _stats.IncrementArgsEnqueued();
         }
 
         public void RunAsync()
@@ -77,11 +100,28 @@ namespace Cassandra.Client
             _loopStop.Dispose();
         }
 
+        private void ProcessContextQueue()
+        {
+            Debug.WriteLine("ProcessContextQueue on thread ID={0}", Thread.CurrentThread.ManagedThreadId);
+
+            CassandraContext context;
+
+            while (_contextQueue.TryDequeue(out context))
+            {
+                _stats.IncrementArgsDequeued();
+            }
+        }
+
         private void CloseAllHandles()
         {
             Debug.WriteLine("CloseAllHandles on thread ID={0}", Thread.CurrentThread.ManagedThreadId);
 
+            _asyncSend.Close(h => h.Dispose());
             _asyncStop.Close(h => h.Dispose());
         }
+    }
+
+    internal sealed class CassandraContext
+    {
     }
 }
