@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Apache.Cassandra;
 using Cassandra.Client.Async;
 using Cassandra.Client.Thrift;
-using NetUv;
 using Thrift.Transport;
 
 namespace Cassandra.Client.Test
@@ -22,7 +21,8 @@ namespace Cassandra.Client.Test
         private static void Main()
         {
             RunTest(DescribeVersionDoNotWaitForResult);
-            //RunTest(GetSlice);
+            RunTest(DescribeVersionWaitForResult);
+            RunTest(GetSliceWaitForResult);
         }
 
         private static Task<long[]> DescribeVersionDoNotWaitForResult(CassandraClient client)
@@ -95,21 +95,24 @@ namespace Cassandra.Client.Test
         private static void RunTest(Func<CassandraClient, Task<long[]>> test)
         {
             var stats = new ConsoleCassandraClientStats();
-            var client = new CassandraClient(stats, ConcurrentClients);
-
-            client.RunAsync();
-
             var clients = new Task<long[]>[ConcurrentClients];
+            TimeSpan totalElapsed;
 
-            var stopwatch = Stopwatch.StartNew();
-            for (var i = 0; i < ConcurrentClients; i++)
+            using (var client = new CassandraClient(stats, ConcurrentClients))
             {
-                clients[i] = test(client);
-            }
-            Task.WaitAll(clients);
-            var totalElapsed = stopwatch.Elapsed;
+                client.RunAsync();
 
-            //client.Dispose();
+                var stopwatch = Stopwatch.StartNew();
+
+                for (var i = 0; i < ConcurrentClients; i++)
+                {
+                    clients[i] = test(client);
+                }
+
+                Task.WaitAll(clients);
+
+                totalElapsed = stopwatch.Elapsed;
+            }
 
             var elapsedMs = clients.SelectMany(c => c.Result).OrderBy(e => e).ToArray();
 

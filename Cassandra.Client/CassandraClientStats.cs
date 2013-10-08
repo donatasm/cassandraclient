@@ -2,7 +2,7 @@
 
 namespace Cassandra.Client
 {
-    public class CassandraClientStats
+    public class CassandraClientStats : FramedTransportStats
     {
         public virtual void IncrementArgsEnqueued()
         {
@@ -12,27 +12,7 @@ namespace Cassandra.Client
         {
         }
 
-        public virtual void IncrementTransportOpen(IPEndPoint endPoint)
-        {
-        }
-
-        public virtual void IncrementTransportClose(IPEndPoint endPoint)
-        {
-        }
-
         public virtual void IncrementTransportRecycle(IPEndPoint endPoint)
-        {
-        }
-
-        public virtual void IncrementTransportSendFrame(IPEndPoint endPoint)
-        {
-        }
-
-        public virtual void IncrementTransportReceiveFrame(IPEndPoint endPoint)
-        {
-        }
-
-        public virtual void IncrementTransportError(IPEndPoint endPoint)
         {
         }
     }

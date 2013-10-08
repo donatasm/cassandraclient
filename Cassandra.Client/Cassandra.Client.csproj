@@ -37,14 +37,23 @@
   <ItemGroup>
     <Compile Include="CassandraClient.cs" />
     <Compile Include="CassandraClientStats.cs" />
+    <Compile Include="FramedTransportStats.cs" />
+    <Compile Include="IUvFrame.cs" />
+    <Compile Include="UvFrame.cs" />
+    <Compile Include="UvFramedTransport.cs" />
+    <Compile Include="CassandraTransportFactory.cs" />
     <Compile Include="CassandraTransportPool.cs" />
-    <Compile Include="ICassandraTransport.cs" />
+    <Compile Include="ITransport.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="NetUv">
       <HintPath>..\Lib\NetUv.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="Thrift, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\x64\Release\Thrift.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cassandra.Client.Thrift\Cassandra.Client.Thrift.csproj">

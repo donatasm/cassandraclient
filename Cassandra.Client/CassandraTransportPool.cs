@@ -5,16 +5,16 @@ namespace Cassandra.Client
 {
     public sealed class CassandraTransportPool
     {
-        private readonly IDictionary<IPEndPoint, Queue<ICassandraTransport>> _pool;
+        private readonly IDictionary<IPEndPoint, Queue<ITransport>> _pool;
 
         public CassandraTransportPool()
         {
-            _pool = new Dictionary<IPEndPoint, Queue<ICassandraTransport>>();
+            _pool = new Dictionary<IPEndPoint, Queue<ITransport>>();
         }
 
-        public bool TryGet(IPEndPoint endPoint, out ICassandraTransport transport)
+        public bool TryGet(IPEndPoint endPoint, out ITransport transport)
         {
-            Queue<ICassandraTransport> endPointPool;
+            Queue<ITransport> endPointPool;
 
             if (_pool.TryGetValue(endPoint, out endPointPool) && (endPointPool.Count > 0))
             {
@@ -26,13 +26,13 @@ namespace Cassandra.Client
             return false;
         }
 
-        public void Add(ICassandraTransport transport)
+        public void Add(ITransport transport)
         {
-            Queue<ICassandraTransport> endPointPool;
+            Queue<ITransport> endPointPool;
 
             if (!_pool.TryGetValue(transport.EndPoint, out endPointPool))
             {
-                endPointPool = new Queue<ICassandraTransport>();
+                endPointPool = new Queue<ITransport>();
                 _pool.Add(transport.EndPoint, endPointPool);
             }
 

@@ -70,8 +70,8 @@ Class NetUv.UvTcpCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldIn
   :System.MulticastDelegate
     Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
   Methods:
-    Invoke(UvTcp, Exception): PrivateScope, Public, Final, Virtual, VtableLayoutMask
-    BeginInvoke(UvTcp, Exception, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    Invoke(IUvTcp, Exception): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    BeginInvoke(IUvTcp, Exception, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
     EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
 Interface NetUv.IUvTcp: AutoLayout, AnsiClass, Class, Public, ClassSemanticsMask, Abstract, BeforeFieldInit
   Interfaces:
@@ -99,8 +99,8 @@ Class NetUv.UvAsyncCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeField
   :System.MulticastDelegate
     Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
   Methods:
-    Invoke(UvAsync, Exception): PrivateScope, Public, Final, Virtual, VtableLayoutMask
-    BeginInvoke(UvAsync, Exception, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    Invoke(IUvAsync, Exception): PrivateScope, Public, Final, Virtual, VtableLayoutMask
+    BeginInvoke(IUvAsync, Exception, AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
     EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
 Class NetUv.UvAsync: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
   :NetUv.UvHandle
@@ -120,6 +120,8 @@ Class NetUv.UvLoop: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldIni
   Interfaces:
     NetUv.IUvLoop
     System.IDisposable
+  Fields:
+    NetUv.UvLoop Default : Public, Static, InitOnly
   Methods:
     Run(): PrivateScope, Public, Final, Virtual, HideBySig, VtableLayoutMask
     InitUvTcp(): PrivateScope, Public, Final, Virtual, HideBySig, VtableLayoutMask
