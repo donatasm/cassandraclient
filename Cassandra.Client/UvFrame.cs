@@ -35,10 +35,14 @@ namespace Cassandra.Client
             {
                 _bodyLength = _position - HeaderLength;
             }
+            else
+            {
+                _position = HeaderLength;
+            }
 
             WriteFrameHeader();
 
-            return new UvBuffer(_buffer, 0, _position + HeaderLength);
+            return new UvBuffer(_buffer, 0, _position);
         }
 
         public void Read(UvBuffer buffer, int read)
@@ -105,6 +109,11 @@ namespace Cassandra.Client
 
         public void Write(byte[] buf, int off, int len)
         {
+            if (_position == 0)
+            {
+                _position = HeaderLength;
+            }
+
             var alloc = _position + len;
 
             if (alloc > _maxFrameSize)
@@ -117,7 +126,7 @@ namespace Cassandra.Client
 
             Buffer.BlockCopy(buf, off, _buffer, _position, len);
 
-            _position = alloc;
+            _position += len;
         }
 
         private bool TryReadFrameBodyLength()
