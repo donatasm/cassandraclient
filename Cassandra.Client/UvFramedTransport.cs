@@ -76,7 +76,7 @@ namespace Cassandra.Client
 
         private void SendFrame()
         {
-            var buffer = _frame.GetBuffer();
+            var buffer = _frame.Flush();
 
             _uvTcp.Write(buffer, (tcp, exception) =>
                 {
@@ -92,7 +92,7 @@ namespace Cassandra.Client
 
         private void ReceiveFrame(IUvStream tcp)
         {
-            tcp.ReadStart(size => _frame.GetBuffer(), ReceiveFrameCb);
+            tcp.ReadStart(size => _frame.AllocBuffer(), ReceiveFrameCb);
         }
 
         private void ReceiveFrameCb(IUvStream tcp, int read, UvBuffer buffer)
@@ -110,9 +110,12 @@ namespace Cassandra.Client
                 return;
             }
 
-            if (_frame.IsReadCompleted(read, buffer))
+            _frame.Read(buffer, read);
+
+            if (_frame.IsBodyRead)
             {
                 _uvTcp.ReadStop();
+                _frame.SeekBody();
                 _flushCb(this, null);
             }
         }

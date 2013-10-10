@@ -39,6 +39,7 @@
     <Compile Include="KeyRangeBalancerTest.cs" />
     <Compile Include="Run.cs" />
     <Compile Include="UvFramedTransportTest.cs" />
+    <Compile Include="UvFrameTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cassandra.Client.Async\Cassandra.Client.Async.csproj">

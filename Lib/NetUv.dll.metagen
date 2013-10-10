@@ -29,6 +29,14 @@ Class NetUv.UvAllocCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeField
     EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
 Class NetUv.UvBuffer: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
     Void .ctor(Byte[], Int32, Int32): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Properties:
+    Byte[] Array 'get ' : 
+    Int32 Count 'get ' : 
+    Int32 Offset 'get ' : 
+  Methods:
+    get_Offset(): PrivateScope, Public, HideBySig, SpecialName
+    get_Count(): PrivateScope, Public, HideBySig, SpecialName
+    get_Array(): PrivateScope, Public, HideBySig, SpecialName
 Class NetUv.UvStreamCb: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
   :System.MulticastDelegate
     Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
