@@ -20,7 +20,7 @@ namespace Cassandra.Client.Test
         [Test]
         public void SendAsync()
         {
-            const int argsCount = 1000000;
+            const int argsCount = 10000;
             var argsEnqueued = 0;
             var argsDequeued = 0;
 
