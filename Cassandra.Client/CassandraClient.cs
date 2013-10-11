@@ -24,6 +24,8 @@ namespace Cassandra.Client
 
         private readonly ConcurrentQueue<CassandraContext> _contextQueue;
 
+        private readonly CassandraTransportPool _transportPool;
+
         public CassandraClient()
             : this(new UvFramedTransport.Factory(),
                 new CassandraClientStats())
@@ -51,6 +53,7 @@ namespace Cassandra.Client
 
             _loopStop = new ManualResetEventSlim();
             _contextQueue = new ConcurrentQueue<CassandraContext>();
+            _transportPool = new CassandraTransportPool();
 
             // close all active loop handles, so loop thread can return
             _asyncStop = _loop.InitUvAsync((async, exception) => CloseAllHandles());
@@ -128,7 +131,15 @@ namespace Cassandra.Client
 
         private void ProcessContext(CassandraContext context)
         {
-            
+            var endPoint = context.Args.EndPoint;
+
+            ITransport transport;
+            if (!_transportPool.TryGet(endPoint, out transport))
+            {
+                transport = _transportFactory.Create(endPoint);
+            }
+
+            context.Send(transport);
         }
 
         private void CloseAllHandles()

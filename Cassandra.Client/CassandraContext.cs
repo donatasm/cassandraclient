@@ -14,6 +14,11 @@ namespace Cassandra.Client
             _resultCb = resultCb;
         }
 
+        public IArgs Args
+        {
+            get { return _args; }
+        }
+
         public void Send(ITransport transport)
         {
             if (!transport.IsOpen)
