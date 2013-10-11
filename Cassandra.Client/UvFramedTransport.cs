@@ -17,13 +17,15 @@ namespace Cassandra.Client
         private bool _isOpen;
         private FramedTransportStats _stats;
         private IUvFrame _frame;
+        private readonly IPEndPoint _endPoint;
 
-        private UvFramedTransport()
+        private UvFramedTransport(IPEndPoint endPoint)
         {
             _isOpen = false;
             _openCb = DefaultOpenCb;
             _closeCb = DefaultCloseCb;
             _flushCb = DefaultFlushCb;
+            _endPoint = endPoint;
         }
 
         public override void Open()
@@ -128,7 +130,10 @@ namespace Cassandra.Client
             get { return _isOpen; }
         }
 
-        public IPEndPoint EndPoint { get; private set; }
+        public IPEndPoint EndPoint
+        {
+            get { return _endPoint; }
+        }
 
         public UvFramedTransportCb OpenCb
         {
@@ -168,15 +173,9 @@ namespace Cassandra.Client
 
         public sealed class Factory
         {
-            private IPEndPoint _endPoint;
             private Func<IUvTcp> _uvTcpFactory;
             private FramedTransportStats _stats;
             private IUvFrame _frame;
-
-            public void SetIpEndPoint(string ip, int port)
-            {
-                _endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            }
 
             public void SetUvTcpFactory(Func<IUvTcp> uvTcpFactory)
             {
@@ -193,11 +192,10 @@ namespace Cassandra.Client
                 _frame = frame;
             }
 
-            public UvFramedTransport Create()
+            public UvFramedTransport Create(IPEndPoint endPoint)
             {
-                return new UvFramedTransport
+                return new UvFramedTransport(endPoint)
                     {
-                        EndPoint = _endPoint ?? DefaultEndPoint,
                         _uvTcp = (_uvTcpFactory ?? DefaultUvTcpFactory)(),
                         _stats = _stats ?? DefaultStats,
                         _frame = _frame ?? new UvFrame()
@@ -205,7 +203,6 @@ namespace Cassandra.Client
             }
 
             private static readonly FramedTransportStats DefaultStats = new FramedTransportStats();
-            private static readonly IPEndPoint DefaultEndPoint = new IPEndPoint(IPAddress.Loopback, 9160);
 
             private static IUvTcp DefaultUvTcpFactory()
             {
