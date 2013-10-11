@@ -98,7 +98,7 @@ namespace Cassandra.Client.Test
             var clients = new Task<long[]>[ConcurrentClients];
             TimeSpan totalElapsed;
 
-            using (var client = new CassandraClient(stats, ConcurrentClients))
+            using (var client = new CassandraClient(stats /*, ConcurrentClients */))
             {
                 client.RunAsync();
 

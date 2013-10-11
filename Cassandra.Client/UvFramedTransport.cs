@@ -164,12 +164,7 @@ namespace Cassandra.Client
         {
         }
 
-        private static void DefaultOpenCb(ITransport transport, Exception exception)
-        {
-            DebugMessage("Open", transport, exception);
-        }
-
-        public sealed class Factory
+        public sealed class Factory : ITransportFactory
         {
             private Func<IUvTcp> _uvTcpFactory;
             private FramedTransportStats _stats;
@@ -190,7 +185,7 @@ namespace Cassandra.Client
                 _frame = frame;
             }
 
-            public UvFramedTransport Create(IPEndPoint endPoint)
+            public ITransport Create(IPEndPoint endPoint)
             {
                 return new UvFramedTransport(endPoint)
                     {
@@ -206,6 +201,11 @@ namespace Cassandra.Client
             {
                 return UvLoop.Default.InitUvTcp();
             }
+        }
+
+        private static void DefaultOpenCb(ITransport transport, Exception exception)
+        {
+            DebugMessage("Open", transport, exception);
         }
 
         private static void DefaultCloseCb(ITransport transport, Exception exception)

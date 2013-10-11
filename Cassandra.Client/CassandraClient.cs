@@ -9,11 +9,9 @@ namespace Cassandra.Client
 {
     public sealed class CassandraClient : IDisposable
     {
-        private const int DefaultMaxTransports = 64;
-
         private readonly IUvLoop _loop;
+        private readonly ITransportFactory _transportFactory;
         private readonly CassandraClientStats _stats;
-        private readonly int _maxEndPointTransportCount;
 
         // wait handle for signaling loop stop
         private readonly ManualResetEventSlim _loopStop;
@@ -26,21 +24,30 @@ namespace Cassandra.Client
 
         private readonly ConcurrentQueue<CassandraContext> _contextQueue;
 
-        public CassandraClient(int maxEndPointTransportCount = DefaultMaxTransports)
-            : this(new CassandraClientStats(), maxEndPointTransportCount)
+        public CassandraClient()
+            : this(new UvFramedTransport.Factory(),
+                new CassandraClientStats())
         {
         }
 
-        public CassandraClient(CassandraClientStats stats, int maxEndPointTransportCount = DefaultMaxTransports)
-            : this(new UvLoop(), stats, maxEndPointTransportCount)
+        public CassandraClient(CassandraClientStats stats)
+            : this(new UvFramedTransport.Factory(), stats)
         {
         }
 
-        internal CassandraClient(IUvLoop loop, CassandraClientStats stats, int maxEndPointTransportCount)
+        public CassandraClient(ITransportFactory transportFactory,
+            CassandraClientStats stats)
+            : this(new UvLoop(), transportFactory, stats)
+        {
+        }
+
+        internal CassandraClient(IUvLoop loop,
+            ITransportFactory transportFactory,
+            CassandraClientStats stats)
         {
             _loop = loop;
+            _transportFactory = transportFactory;
             _stats = stats;
-            _maxEndPointTransportCount = maxEndPointTransportCount;
 
             _loopStop = new ManualResetEventSlim();
             _contextQueue = new ConcurrentQueue<CassandraContext>();
