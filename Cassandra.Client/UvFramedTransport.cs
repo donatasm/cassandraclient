@@ -21,6 +21,9 @@ namespace Cassandra.Client
         private UvFramedTransport()
         {
             _isOpen = false;
+            _openCb = DefaultOpenCb;
+            _closeCb = DefaultCloseCb;
+            _flushCb = DefaultFlushCb;
         }
 
         public override void Open()
@@ -127,16 +130,64 @@ namespace Cassandra.Client
 
         public IPEndPoint EndPoint { get; private set; }
 
+        public UvFramedTransportCb OpenCb
+        {
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+                _openCb = value;
+            }
+        }
+
+        public UvFramedTransportCb CloseCb
+        {
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+                _closeCb = value;
+            }
+        }
+
+        public UvFramedTransportCb FlushCb
+        {
+            set
+            {
+                if (value == null) throw new ArgumentNullException("value");
+                _flushCb = value;
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
+        }
+
+        private static void DefaultOpenCb(ITransport transport, Exception exception)
+        {
+            DebugMessage("Open", transport, exception);
+        }
+
+        private static void DefaultCloseCb(ITransport transport, Exception exception)
+        {
+            DebugMessage("Close", transport, exception);
+        }
+
+        private static void DefaultFlushCb(ITransport transport, Exception exception)
+        {
+            DebugMessage("Flush", transport, exception);
+        }
+
+        [Conditional("DEBUG")]
+        private static void DebugMessage(string callback, ITransport transport, Exception exception)
+        {
+            Debug.WriteLine("{0} callback: endpoint={1}, exception: {2}",
+                callback,
+                transport.EndPoint,
+                exception == null ? "<null>" : exception.Message);
         }
 
         public sealed class Factory
         {
             private IPEndPoint _endPoint;
-            private UvFramedTransportCb _openCb;
-            private UvFramedTransportCb _flushCb;
-            private UvFramedTransportCb _closeCb;
             private Func<IUvTcp> _uvTcpFactory;
             private FramedTransportStats _stats;
             private IUvFrame _frame;
@@ -144,21 +195,6 @@ namespace Cassandra.Client
             public void SetIpEndPoint(string ip, int port)
             {
                 _endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            }
-
-            public void SetOpenCb(UvFramedTransportCb openCb)
-            {
-                _openCb = openCb;
-            }
-
-            public void SetCloseCb(UvFramedTransportCb closeCb)
-            {
-                _closeCb = closeCb;
-            }
-
-            public void SetFlushCb(UvFramedTransportCb flushCb)
-            {
-                _flushCb = flushCb;
             }
 
             public void SetUvTcpFactory(Func<IUvTcp> uvTcpFactory)
@@ -181,9 +217,6 @@ namespace Cassandra.Client
                 return new UvFramedTransport
                     {
                         EndPoint = _endPoint ?? DefaultEndPoint,
-                        _openCb = _openCb ?? DefaultOpenCb,
-                        _closeCb = _closeCb ?? DefaultCloseCb,
-                        _flushCb = _flushCb ?? DefaultFlushCb,
                         _uvTcp = (_uvTcpFactory ?? DefaultUvTcpFactory)(),
                         _stats = _stats ?? DefaultStats,
                         _frame = _frame ?? new UvFrame()
@@ -193,33 +226,9 @@ namespace Cassandra.Client
             private static readonly FramedTransportStats DefaultStats = new FramedTransportStats();
             private static readonly IPEndPoint DefaultEndPoint = new IPEndPoint(IPAddress.Loopback, 9160);
 
-            private static void DefaultOpenCb(ITransport transport, Exception exception)
-            {
-                DebugMessage("Open", transport, exception);
-            }
-
-            private static void DefaultCloseCb(ITransport transport, Exception exception)
-            {
-                DebugMessage("Close", transport, exception);
-            }
-
-            private static void DefaultFlushCb(ITransport transport, Exception exception)
-            {
-                DebugMessage("Flush", transport, exception);
-            }
-
             private static IUvTcp DefaultUvTcpFactory()
             {
                 return UvLoop.Default.InitUvTcp();
-            }
-
-            [Conditional("DEBUG")]
-            private static void DebugMessage(string callback, ITransport transport, Exception exception)
-            {
-                Debug.WriteLine("{0} callback: endpoint={1}, exception: {2}",
-                    callback,
-                    transport.EndPoint,
-                    exception == null ? "<null>" : exception.Message);
             }
         }
     }

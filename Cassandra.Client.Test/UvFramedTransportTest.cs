@@ -50,13 +50,14 @@ namespace Cassandra.Client.Test
             var factory = new UvFramedTransport.Factory();
             factory.SetUvTcpFactory(() => uvTcp.Object);
             factory.SetStats(stats.Object);
-            factory.SetOpenCb((transport, exception) =>
-                {
-                    openCbCalled = true;
-                });
 
             using (var transport = factory.Build())
             {
+                transport.OpenCb = (t, e) =>
+                    {
+                        openCbCalled = true;
+                    };
+
                 transport.Open();
 
                 Assert.IsTrue(openCbCalled);
@@ -90,17 +91,19 @@ namespace Cassandra.Client.Test
             var factory = new UvFramedTransport.Factory();
             factory.SetUvTcpFactory(() => uvTcp.Object);
             factory.SetStats(stats.Object);
-            factory.SetOpenCb((transport, exception) =>
-                {
-                    openCbCalled = true;
-                });
-            factory.SetCloseCb((transport, exception) =>
-                {
-                    closeCbCalled = true;
-                });
 
             using (var transport = factory.Build())
             {
+                transport.OpenCb = (t, e) =>
+                    {
+                        openCbCalled = true;
+                    };
+
+                transport.CloseCb = (t, e) =>
+                    {
+                        closeCbCalled = true;
+                    };
+
                 transport.Open();
                 transport.Close();
 
