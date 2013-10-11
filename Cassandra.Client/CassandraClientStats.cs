@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace Cassandra.Client
+﻿namespace Cassandra.Client
 {
     public class CassandraClientStats : FramedTransportStats
     {
@@ -9,10 +7,6 @@ namespace Cassandra.Client
         }
 
         public virtual void IncrementArgsDequeued()
-        {
-        }
-
-        public virtual void IncrementTransportRecycle(IPEndPoint endPoint)
         {
         }
     }
