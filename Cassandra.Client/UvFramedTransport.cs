@@ -6,13 +6,11 @@ using Thrift.Transport;
 
 namespace Cassandra.Client
 {
-    public delegate void UvFramedTransportCb(ITransport transport, Exception exception);
-
     public sealed class UvFramedTransport : TTransport, ITransport
     {
-        private UvFramedTransportCb _openCb;
-        private UvFramedTransportCb _closeCb;
-        private UvFramedTransportCb _flushCb;
+        private ResultCb _openCb;
+        private ResultCb _closeCb;
+        private ResultCb _flushCb;
         private IUvTcp _uvTcp;
         private bool _isOpen;
         private FramedTransportStats _stats;
@@ -135,7 +133,7 @@ namespace Cassandra.Client
             get { return _endPoint; }
         }
 
-        public UvFramedTransportCb OpenCb
+        public ResultCb OpenCb
         {
             set
             {
@@ -144,7 +142,7 @@ namespace Cassandra.Client
             }
         }
 
-        public UvFramedTransportCb CloseCb
+        public ResultCb CloseCb
         {
             set
             {
@@ -153,7 +151,7 @@ namespace Cassandra.Client
             }
         }
 
-        public UvFramedTransportCb FlushCb
+        public ResultCb FlushCb
         {
             set
             {
