@@ -59,9 +59,9 @@ namespace Cassandra.Client
             _asyncSend = _loop.InitUvAsync((async, exception) => ProcessContextQueue());
         }
 
-        public void SendAsync(IArgs args, Action<Exception> resultCb)
+        public void SendAsync(IArgs args, ResultCb resultCb)
         {
-            var context = new CassandraContext();
+            var context = new CassandraContext(args, resultCb);
 
             // enqueue and notify the loop about contexts pending
             _contextQueue.Enqueue(context);
@@ -115,8 +115,20 @@ namespace Cassandra.Client
 
             while (_contextQueue.TryDequeue(out context))
             {
-                _stats.IncrementArgsDequeued();
+                try
+                {
+                    ProcessContext(context);
+                }
+                finally
+                {
+                    _stats.IncrementArgsDequeued();
+                }
             }
+        }
+
+        private void ProcessContext(CassandraContext context)
+        {
+            
         }
 
         private void CloseAllHandles()
@@ -126,9 +138,5 @@ namespace Cassandra.Client
             _asyncSend.Close(h => h.Dispose());
             _asyncStop.Close(h => h.Dispose());
         }
-    }
-
-    internal sealed class CassandraContext
-    {
     }
 }

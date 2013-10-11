@@ -16,7 +16,6 @@ namespace Cassandra.Client.Thrift
             protocol.WriteMessageBegin(new TMessage("describe_ring", TMessageType.Call, Sequence.GetId()));
             Write(protocol);
             protocol.WriteMessageEnd();
-            protocol.Transport.Flush();
         }
 
         public IPEndPoint EndPoint { get; private set; }

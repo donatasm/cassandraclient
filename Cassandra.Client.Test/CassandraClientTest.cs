@@ -54,7 +54,7 @@ namespace Cassandra.Client.Test
                     for (var i = 0; i < argsCount; i++)
                     {
                         var args = new Mock<IArgs>();
-                        client.SendAsync(args.Object, (exception) => {});
+                        client.SendAsync(args.Object, (transport, exception) => {});
                     }
 
                     signal.Wait();

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using NetUv;
+using Thrift.Protocol;
 using Thrift.Transport;
 
 namespace Cassandra.Client
@@ -16,6 +17,7 @@ namespace Cassandra.Client
         private FramedTransportStats _stats;
         private IUvFrame _frame;
         private readonly IPEndPoint _endPoint;
+        private readonly TProtocol _protocol;
 
         private UvFramedTransport(IPEndPoint endPoint)
         {
@@ -24,6 +26,7 @@ namespace Cassandra.Client
             _closeCb = DefaultCloseCb;
             _flushCb = DefaultFlushCb;
             _endPoint = endPoint;
+            _protocol = new TBinaryProtocol(this);
         }
 
         public override void Open()
@@ -50,6 +53,11 @@ namespace Cassandra.Client
                     _stats.IncrementTransportClose(EndPoint);
                     _closeCb(this, null);
                 });
+        }
+
+        public TProtocol Protocol
+        {
+            get { return _protocol; }
         }
 
         public override int Read(byte[] buf, int off, int len)
