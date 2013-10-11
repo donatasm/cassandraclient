@@ -166,25 +166,6 @@ namespace Cassandra.Client
             DebugMessage("Open", transport, exception);
         }
 
-        private static void DefaultCloseCb(ITransport transport, Exception exception)
-        {
-            DebugMessage("Close", transport, exception);
-        }
-
-        private static void DefaultFlushCb(ITransport transport, Exception exception)
-        {
-            DebugMessage("Flush", transport, exception);
-        }
-
-        [Conditional("DEBUG")]
-        private static void DebugMessage(string callback, ITransport transport, Exception exception)
-        {
-            Debug.WriteLine("{0} callback: endpoint={1}, exception: {2}",
-                callback,
-                transport.EndPoint,
-                exception == null ? "<null>" : exception.Message);
-        }
-
         public sealed class Factory
         {
             private IPEndPoint _endPoint;
@@ -230,6 +211,25 @@ namespace Cassandra.Client
             {
                 return UvLoop.Default.InitUvTcp();
             }
+        }
+
+        private static void DefaultCloseCb(ITransport transport, Exception exception)
+        {
+            DebugMessage("Close", transport, exception);
+        }
+
+        private static void DefaultFlushCb(ITransport transport, Exception exception)
+        {
+            DebugMessage("Flush", transport, exception);
+        }
+
+        [Conditional("DEBUG")]
+        private static void DebugMessage(string callback, ITransport transport, Exception exception)
+        {
+            Debug.WriteLine("{0} callback: endpoint={1}, exception: {2}",
+                callback,
+                transport.EndPoint,
+                exception == null ? "<null>" : exception.Message);
         }
     }
 }
