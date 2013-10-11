@@ -15,7 +15,7 @@ namespace Cassandra.Client.Test
         {
             var factory = new UvFramedTransport.Factory();
 
-            using (var transport = factory.Build())
+            using (var transport = factory.Create())
             {
                 Assert.IsFalse(transport.IsOpen);
             }
@@ -26,7 +26,7 @@ namespace Cassandra.Client.Test
         {
             var factory = new UvFramedTransport.Factory();
 
-            using (var transport = factory.Build())
+            using (var transport = factory.Create())
             {
                 Assert.AreEqual(IPAddress.Loopback, transport.EndPoint.Address);
             }
@@ -51,7 +51,7 @@ namespace Cassandra.Client.Test
             factory.SetUvTcpFactory(() => uvTcp.Object);
             factory.SetStats(stats.Object);
 
-            using (var transport = factory.Build())
+            using (var transport = factory.Create())
             {
                 transport.OpenCb = (t, e) =>
                     {
@@ -92,7 +92,7 @@ namespace Cassandra.Client.Test
             factory.SetUvTcpFactory(() => uvTcp.Object);
             factory.SetStats(stats.Object);
 
-            using (var transport = factory.Build())
+            using (var transport = factory.Create())
             {
                 transport.OpenCb = (t, e) =>
                     {
@@ -120,7 +120,7 @@ namespace Cassandra.Client.Test
         {
             var factory = new UvFramedTransport.Factory();
 
-            using (var transport = factory.Build())
+            using (var transport = factory.Create())
             {
                 Assert.Throws<TTransportException>(transport.Flush);
             }

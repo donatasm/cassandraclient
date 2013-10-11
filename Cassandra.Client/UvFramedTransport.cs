@@ -212,7 +212,7 @@ namespace Cassandra.Client
                 _frame = frame;
             }
 
-            public UvFramedTransport Build()
+            public UvFramedTransport Create()
             {
                 return new UvFramedTransport
                     {
