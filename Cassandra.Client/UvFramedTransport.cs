@@ -192,7 +192,7 @@ namespace Cassandra.Client
                 _stats = stats;
             }
 
-            public void SetFrameReaderWriter(IUvFrame frame)
+            public void SetFrame(IUvFrame frame)
             {
                 _frame = frame;
             }
