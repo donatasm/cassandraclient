@@ -54,7 +54,6 @@ namespace Cassandra.Client
                 {
                     _isOpen = false;
                     _closeCb(this, null);
-                    _stats.IncrementTransportClose(EndPoint);
                     _factory.CloseTransport(EndPoint);
                     _stats.IncrementTransportClose(EndPoint);
                 });
