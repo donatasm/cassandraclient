@@ -24,7 +24,7 @@ namespace Cassandra.Client
 
         private readonly ConcurrentQueue<CassandraContext> _contextQueue;
 
-        private readonly CassandraTransportPool _transportPool;
+        private readonly ITransportPool _transportPool;
 
         public CassandraClient()
             : this(new UvFramedTransport.Factory(),
@@ -143,7 +143,8 @@ namespace Cassandra.Client
                 transport = _transportFactory.Create(endPoint);
             }
 
-            context.Send(transport);
+            context.TransportPool = _transportPool;
+            context.SendArgs(transport);
         }
 
         private void CloseAllHandles()

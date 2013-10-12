@@ -114,7 +114,7 @@ namespace Cassandra.Client
         {
             if (read == UvStream.EOF)
             {
-                _flushCb(this, new TTransportException("Remote side has closed."));
+                _flushCb(this, new TTransportException("EOF."));
                 return;
             }
 

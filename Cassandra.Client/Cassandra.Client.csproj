@@ -40,6 +40,7 @@
     <Compile Include="CassandraContext.cs" />
     <Compile Include="FramedTransportStats.cs" />
     <Compile Include="ITransportFactory.cs" />
+    <Compile Include="ITransportPool.cs" />
     <Compile Include="IUvFrame.cs" />
     <Compile Include="ResultCb.cs" />
     <Compile Include="UvFrame.cs" />

@@ -8,6 +8,8 @@ namespace Cassandra.Client
         private readonly IArgs _args;
         private readonly ResultCb _resultCb;
 
+        private ITransportPool _transportPool;
+
         public CassandraContext(IArgs args, ResultCb resultCb)
         {
             _args = args;
@@ -19,8 +21,10 @@ namespace Cassandra.Client
             get { return _args; }
         }
 
-        public void Send(ITransport transport)
+        public void SendArgs(ITransport transport)
         {
+            _args.WriteMessage(transport.Protocol);
+
             if (!transport.IsOpen)
             {
                 transport.OpenCb = OpenCb;
@@ -32,11 +36,15 @@ namespace Cassandra.Client
             }
         }
 
+        public ITransportPool TransportPool
+        {
+            set { _transportPool = value; }
+        }
+
         private void OpenCb(ITransport transport, Exception exception)
         {
             if (Success(transport, exception))
             {
-                _args.WriteMessage(transport.Protocol);
                 Flush(transport);
             }
         }
@@ -52,8 +60,12 @@ namespace Cassandra.Client
                 finally
                 {
                     transport.Recycle();
+
+                    if (_transportPool != null)
+                    {
+                        _transportPool.Add(transport);
+                    }
                 }
-                
             }
         }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Apache.Cassandra;
 using Cassandra.Client.Thrift;
@@ -43,23 +42,14 @@ namespace Cassandra.Client.Async
                         {
                             tcs.TrySetException(result.Exception);
                         }
-
-                        transport.Recycle();
                     }
                     else
                     {
                         tcs.TrySetException(exception);
-                        transport.CloseCb = CloseCb;
-                        transport.Close();
                     }
                 });
 
             return tcs.Task;
-        }
-
-        private static void CloseCb(ITransport transport, Exception exception)
-        {
-            transport.Dispose();
         }
     }
 }

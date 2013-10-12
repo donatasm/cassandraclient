@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Cassandra.Client
 {
-    public sealed class CassandraTransportPool
+    public sealed class CassandraTransportPool : ITransportPool
     {
         private readonly IDictionary<IPEndPoint, Queue<ITransport>> _pool;
 
