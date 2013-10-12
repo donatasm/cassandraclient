@@ -50,6 +50,10 @@
     <Compile Include="ITransport.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Apache.Cassandra, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\Apache.Cassandra.dll</HintPath>
+    </Reference>
     <Reference Include="NetUv">
       <HintPath>..\Lib\NetUv.dll</HintPath>
     </Reference>

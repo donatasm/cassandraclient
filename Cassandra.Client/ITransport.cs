@@ -15,6 +15,7 @@ namespace Cassandra.Client
         IPEndPoint EndPoint { get; }
         bool IsOpen { get; }
         TProtocol Protocol { get; }
+        string Keyspace { get; set; }
         int Read(byte[] buf, int off, int len);
         void Write(byte[] buf, int off, int len);
         void Recycle();

@@ -79,8 +79,20 @@ namespace Cassandra.Client.Test
             var args = new GetSliceArgs(EndPoint, "Keyspace#1")
             {
                 Key = BitConverter.GetBytes(10),
-                Column_parent = new ColumnParent(),
-                Predicate = new SlicePredicate(),
+                Column_parent = new ColumnParent
+                    {
+                        Column_family = "RealTimeBiddingBidData"
+                    },
+                Predicate = new SlicePredicate
+                    {
+                        Slice_range = new SliceRange
+                        {
+                            Count = Int32.MaxValue,
+                            Start = new byte[0],
+                            Finish = new byte[0],
+                            Reversed = false
+                        }
+                    },
                 Consistency_level = ConsistencyLevel.ONE
             };
 

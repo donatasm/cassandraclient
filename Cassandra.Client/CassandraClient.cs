@@ -147,8 +147,38 @@ namespace Cassandra.Client
                 }
             }
 
-            context.TransportPool = _transportPool;
-            context.SendArgs(transport);
+            var wrappedContext = GetWrappedContext(transport, context);
+            wrappedContext.TransportPool = _transportPool;
+            wrappedContext.SendArgs(transport);
+        }
+
+        private static CassandraContext GetWrappedContext(ITransport transport, CassandraContext context)
+        {
+            if (TransportKeyspaceIsNotSet(transport, context.Args))
+            {
+                var keyspace = context.Args.Keyspace;
+                var setKeyspaceArgs = new SetKeyspaceArgs(transport.EndPoint, keyspace);
+
+                return new CassandraContext(setKeyspaceArgs,
+                    (trans, exception) =>
+                        {
+                            if (exception != null)
+                            {
+                                context.ResultCb(trans, exception);
+                                return;
+                            }
+
+                            transport.Keyspace = keyspace;
+                            context.SendArgs(trans);
+                        });
+            }
+
+            return context;
+        }
+
+        private static bool TransportKeyspaceIsNotSet(ITransport transport, IArgs args)
+        {
+            return args.Keyspace != null && transport.Keyspace != args.Keyspace;
         }
 
         private void CloseAllHandles()

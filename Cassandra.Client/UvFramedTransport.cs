@@ -64,6 +64,8 @@ namespace Cassandra.Client
             get { return _protocol; }
         }
 
+        public string Keyspace { get; set; }
+
         public override int Read(byte[] buf, int off, int len)
         {
             return _frame.Read(buf, off, len);
