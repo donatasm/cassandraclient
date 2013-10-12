@@ -20,10 +20,6 @@ namespace Cassandra.Client
         {
         }
 
-        public virtual void IncrementTransportError(IPEndPoint endPoint)
-        {
-        }
-
         public virtual void IncrementTransportRecycle(IPEndPoint endPoint)
         {
         }

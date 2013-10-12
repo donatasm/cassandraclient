@@ -56,6 +56,7 @@ namespace Cassandra.Client
                     _closeCb(this, null);
                     _stats.IncrementTransportClose(EndPoint);
                     _factory.CloseTransport(EndPoint);
+                    _stats.IncrementTransportClose(EndPoint);
                 });
         }
 
@@ -89,6 +90,7 @@ namespace Cassandra.Client
         public void Recycle()
         {
             _frame.Recycle();
+            _stats.IncrementTransportRecycle(EndPoint);
         }
 
         private void SendFrame()
@@ -105,6 +107,8 @@ namespace Cassandra.Client
 
                     // prepare frame for read
                     _frame.Recycle();
+
+                    _stats.IncrementTransportSendFrame(EndPoint);
 
                     // receive frame
                     ReceiveFrame(tcp);
@@ -138,6 +142,7 @@ namespace Cassandra.Client
                 _uvTcp.ReadStop();
                 _frame.SeekBody();
                 _flushCb(this, null);
+                _stats.IncrementTransportReceiveFrame(EndPoint);
             }
         }
 

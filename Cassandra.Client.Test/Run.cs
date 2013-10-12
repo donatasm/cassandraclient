@@ -113,6 +113,7 @@ namespace Cassandra.Client.Test
             TimeSpan totalElapsed;
 
             var factory = new UvFramedTransport.Factory(ConcurrentClients);
+            factory.SetStats(stats);
             using (var client = new CassandraClient(factory, stats))
             {
                 client.RunAsync();
@@ -150,7 +151,6 @@ namespace Cassandra.Client.Test
                 Console.WriteLine("\trecycle count: {0}", counter.RecycleCount);
                 Console.WriteLine("\tsend frame count: {0}", counter.SendFrameCount);
                 Console.WriteLine("\treceive frame count: {0}", counter.ReceiveFrameCount);
-                Console.WriteLine("\terror count: {0}", counter.ErrorCount);
             }
             Console.WriteLine();
         }

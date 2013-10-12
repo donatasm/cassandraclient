@@ -56,12 +56,6 @@ namespace Cassandra.Client.Test
             _endPointCounters[endPoint].IncrementReceiveFrameCount();
         }
 
-        public override void IncrementTransportError(IPEndPoint endPoint)
-        {
-            AddIfNotExists(endPoint);
-            _endPointCounters[endPoint].IncrementErrorCount();
-        }
-
         private void AddIfNotExists(IPEndPoint endPoint)
         {
             if (!_endPointCounters.ContainsKey(endPoint))
@@ -94,7 +88,6 @@ namespace Cassandra.Client.Test
                 RecycleCount = 0;
                 SendFrameCount = 0;
                 ReceiveFrameCount = 0;
-                ErrorCount = 0;
             }
 
             public IPEndPoint EndPoint
@@ -130,12 +123,6 @@ namespace Cassandra.Client.Test
             public void IncrementReceiveFrameCount()
             {
                 ReceiveFrameCount++;
-            }
-
-            public long ErrorCount { get; private set; }
-            public void IncrementErrorCount()
-            {
-                ErrorCount++;
             }
         }
     }
