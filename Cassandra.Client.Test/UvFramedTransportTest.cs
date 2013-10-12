@@ -17,9 +17,20 @@ namespace Cassandra.Client.Test
         {
             var factory = new UvFramedTransport.Factory();
 
-            using (var transport = factory.Create(EndPoint))
+            ITransport transport = null;
+
+            try
             {
+                factory.TryCreate(EndPoint, out transport);
+                Assert.IsNotNull(transport);
                 Assert.IsFalse(transport.IsOpen);
+            }
+            finally
+            {
+                if (transport != null)
+                {
+                    transport.Dispose();
+                }
             }
         }
 
@@ -28,9 +39,21 @@ namespace Cassandra.Client.Test
         {
             var factory = new UvFramedTransport.Factory();
 
-            using (var transport = factory.Create(EndPoint))
+            ITransport transport = null;
+
+            try
             {
+                factory.TryCreate(EndPoint, out transport);
+
+                Assert.IsNotNull(transport);
                 Assert.AreEqual(IPAddress.Loopback, transport.EndPoint.Address);
+            }
+            finally
+            {
+                if (transport != null)
+                {
+                    transport.Dispose();
+                }
             }
         }
 
@@ -53,12 +76,16 @@ namespace Cassandra.Client.Test
             factory.SetUvTcpFactory(() => uvTcp.Object);
             factory.SetStats(stats.Object);
 
-            using (var transport = factory.Create(EndPoint))
+            ITransport transport = null;
+
+            try
             {
+                factory.TryCreate(EndPoint, out transport);
+
                 transport.OpenCb = (t, e) =>
-                    {
-                        openCbCalled = true;
-                    };
+                {
+                    openCbCalled = true;
+                };
 
                 transport.Open();
 
@@ -66,6 +93,13 @@ namespace Cassandra.Client.Test
                 Assert.IsTrue(transport.IsOpen);
                 Assert.Throws<TTransportException>(transport.Open);
                 stats.Verify(s => s.IncrementTransportOpen(It.IsAny<IPEndPoint>()), Times.Once);
+            }
+            finally
+            {
+                if (transport != null)
+                {
+                    transport.Dispose();
+                }
             }
         }
 
@@ -94,17 +128,21 @@ namespace Cassandra.Client.Test
             factory.SetUvTcpFactory(() => uvTcp.Object);
             factory.SetStats(stats.Object);
 
-            using (var transport = factory.Create(EndPoint))
+            ITransport transport = null;
+
+            try
             {
+                factory.TryCreate(EndPoint, out transport);
+
                 transport.OpenCb = (t, e) =>
-                    {
-                        openCbCalled = true;
-                    };
+                {
+                    openCbCalled = true;
+                };
 
                 transport.CloseCb = (t, e) =>
-                    {
-                        closeCbCalled = true;
-                    };
+                {
+                    closeCbCalled = true;
+                };
 
                 transport.Open();
                 transport.Close();
@@ -115,6 +153,13 @@ namespace Cassandra.Client.Test
                 stats.Verify(s => s.IncrementTransportOpen(It.IsAny<IPEndPoint>()), Times.Once);
                 stats.Verify(s => s.IncrementTransportClose(It.IsAny<IPEndPoint>()), Times.Once);
             }
+            finally
+            {
+                if (transport != null)
+                {
+                    transport.Dispose();
+                }
+            }
         }
 
         [Test]
@@ -122,9 +167,20 @@ namespace Cassandra.Client.Test
         {
             var factory = new UvFramedTransport.Factory();
 
-            using (var transport = factory.Create(EndPoint))
+            ITransport transport;
+
+            factory.TryCreate(EndPoint, out transport);
+
+            try
             {
                 Assert.Throws<TTransportException>(transport.Flush);
+            }
+            finally
+            {
+                if (transport != null)
+                {
+                    transport.Dispose();
+                }
             }
         }
     }

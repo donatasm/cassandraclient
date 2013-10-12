@@ -43,9 +43,9 @@
     <Compile Include="ITransportPool.cs" />
     <Compile Include="IUvFrame.cs" />
     <Compile Include="ResultCb.cs" />
+    <Compile Include="TransportLimitException.cs" />
     <Compile Include="UvFrame.cs" />
     <Compile Include="UvFramedTransport.cs" />
-    <Compile Include="CassandraTransportFactory.cs" />
     <Compile Include="CassandraTransportPool.cs" />
     <Compile Include="ITransport.cs" />
   </ItemGroup>

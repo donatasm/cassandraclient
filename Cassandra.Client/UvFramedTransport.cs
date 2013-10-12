@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using NetUv;
@@ -17,15 +18,17 @@ namespace Cassandra.Client
         private FramedTransportStats _stats;
         private IUvFrame _frame;
         private readonly IPEndPoint _endPoint;
+        private readonly Factory _factory;
         private readonly TProtocol _protocol;
 
-        private UvFramedTransport(IPEndPoint endPoint)
+        private UvFramedTransport(IPEndPoint endPoint, Factory factory)
         {
             _isOpen = false;
             _openCb = DefaultOpenCb;
             _closeCb = DefaultCloseCb;
             _flushCb = DefaultFlushCb;
             _endPoint = endPoint;
+            _factory = factory;
             _protocol = new TBinaryProtocol(this);
         }
 
@@ -50,8 +53,9 @@ namespace Cassandra.Client
             _uvTcp.Close(tcp =>
                 {
                     _isOpen = false;
-                    _stats.IncrementTransportClose(EndPoint);
                     _closeCb(this, null);
+                    _stats.IncrementTransportClose(EndPoint);
+                    _factory.CloseTransport(EndPoint);
                 });
         }
 
@@ -181,6 +185,14 @@ namespace Cassandra.Client
             private Func<IUvTcp> _uvTcpFactory;
             private FramedTransportStats _stats;
             private IUvFrame _frame;
+            private readonly Dictionary<IPEndPoint, int> _transports;
+            private readonly int _maxTransportsPerEndPoint;
+
+            public Factory(int maxTransportsPerEndPoint = 64)
+            {
+                _transports = new Dictionary<IPEndPoint, int>();
+                _maxTransportsPerEndPoint = maxTransportsPerEndPoint;
+            }
 
             public void SetUvTcpFactory(Func<IUvTcp> uvTcpFactory)
             {
@@ -197,14 +209,50 @@ namespace Cassandra.Client
                 _frame = frame;
             }
 
-            public ITransport Create(IPEndPoint endPoint)
+            public bool TryCreate(IPEndPoint endPoint, out ITransport transport)
             {
-                return new UvFramedTransport(endPoint)
+                if (IncrementTransportCount(endPoint))
+                {
+                    transport = new UvFramedTransport(endPoint, this)
                     {
                         _uvTcp = (_uvTcpFactory ?? DefaultUvTcpFactory)(),
                         _stats = _stats ?? DefaultStats,
                         _frame = _frame ?? new UvFrame()
                     };
+
+                    return true;
+                }
+
+                transport = null;
+                return false;
+            }
+
+            internal void CloseTransport(IPEndPoint endPoint)
+            {
+                DecrementTransportCount(endPoint);
+            }
+
+            private bool IncrementTransportCount(IPEndPoint endPoint)
+            {
+                int count;
+
+                _transports.TryGetValue(endPoint, out count);
+
+                if (count < _maxTransportsPerEndPoint)
+                {
+                    _transports[endPoint] = count + 1;
+                    return true;
+                }
+
+                return false;
+            }
+
+            private void DecrementTransportCount(IPEndPoint endPoint)
+            {
+                int count;
+
+                _transports.TryGetValue(endPoint, out count);
+                _transports[endPoint] = count - 1;
             }
 
             private static readonly FramedTransportStats DefaultStats = new FramedTransportStats();

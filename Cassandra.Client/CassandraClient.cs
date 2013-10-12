@@ -140,7 +140,11 @@ namespace Cassandra.Client
             ITransport transport;
             if (!_transportPool.TryGet(endPoint, out transport))
             {
-                transport = _transportFactory.Create(endPoint);
+                if (!_transportFactory.TryCreate(endPoint, out transport))
+                {
+                    context.ResultCb(null, TransportLimitException.Default);
+                    return;
+                }
             }
 
             context.TransportPool = _transportPool;

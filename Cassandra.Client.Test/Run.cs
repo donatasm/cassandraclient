@@ -43,7 +43,9 @@ namespace Cassandra.Client.Test
                         if (t.IsFaulted)
                         {
                             // ReSharper disable PossibleNullReferenceException
-                            t.Exception.Handle(e => e is TTransportException);
+                            t.Exception.Handle(e =>
+                                e is TTransportException
+                                || e is TransportLimitException);
                             // ReSharper restore PossibleNullReferenceException
                         }
                     });
@@ -98,7 +100,8 @@ namespace Cassandra.Client.Test
             var clients = new Task<long[]>[ConcurrentClients];
             TimeSpan totalElapsed;
 
-            using (var client = new CassandraClient(stats /*, ConcurrentClients */))
+            var factory = new UvFramedTransport.Factory(ConcurrentClients);
+            using (var client = new CassandraClient(factory, stats))
             {
                 client.RunAsync();
 

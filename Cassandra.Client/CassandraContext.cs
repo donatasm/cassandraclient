@@ -21,6 +21,11 @@ namespace Cassandra.Client
             get { return _args; }
         }
 
+        public ResultCb ResultCb
+        {
+            get { return _resultCb; }
+        }
+
         public void SendArgs(ITransport transport)
         {
             _args.WriteMessage(transport.Protocol);
@@ -91,8 +96,11 @@ namespace Cassandra.Client
                 }
                 finally
                 {
-                    transport.CloseCb = CloseCb;
-                    transport.Close();
+                    if (transport != null)
+                    {
+                        transport.CloseCb = CloseCb;
+                        transport.Close();
+                    }
                 }
             }
 

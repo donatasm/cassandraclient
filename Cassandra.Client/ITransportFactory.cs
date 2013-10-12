@@ -4,6 +4,6 @@ namespace Cassandra.Client
 {
     public interface ITransportFactory
     {
-        ITransport Create(IPEndPoint endPoint);
+        bool TryCreate(IPEndPoint endPoint, out ITransport transport);
     }
 }
