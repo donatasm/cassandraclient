@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Apache.Cassandra;
 using Cassandra.Client.Thrift;
@@ -26,41 +27,39 @@ namespace Cassandra.Client.Async
         {
             var tcs = new TaskCompletionSource<TResult>();
 
-            //client.Send(args, (protocol, exception) =>
-            //    {
-            //        // check for transport exceptions
-            //        if (exception == null)
-            //        {
-            //            result.ReadMessage(protocol);
+            client.SendAsync(args, (transport, exception) =>
+                {
+                    // check for transport exceptions
+                    if (exception == null)
+                    {
+                        result.ReadMessage(transport.Protocol);
 
-            //            // check for protocol exceptions too
-            //            if (result.Exception == null)
-            //            {
-            //                tcs.TrySetResult(result.Success);
-            //            }
-            //            else
-            //            {
-            //                tcs.TrySetException(result.Exception);
-            //            }
+                        // check for protocol exceptions too
+                        if (result.Exception == null)
+                        {
+                            tcs.TrySetResult(result.Success);
+                        }
+                        else
+                        {
+                            tcs.TrySetException(result.Exception);
+                        }
 
-            //            var transport = (ICassandraTransport)protocol.Transport;
-
-            //            transport.Recycle();
-            //        }
-            //        else
-            //        {
-            //            tcs.TrySetException(exception);
-
-            //            if (protocol != null && protocol.Transport != null)
-            //            {
-            //                var transport = (ICassandraTransport) protocol.Transport;
-
-            //                transport.Close();
-            //            }
-            //        }
-            //    });
+                        transport.Recycle();
+                    }
+                    else
+                    {
+                        tcs.TrySetException(exception);
+                        transport.CloseCb = CloseCb;
+                        transport.Close();
+                    }
+                });
 
             return tcs.Task;
+        }
+
+        private static void CloseCb(ITransport transport, Exception exception)
+        {
+            transport.Dispose();
         }
     }
 }
