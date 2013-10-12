@@ -39,7 +39,7 @@ namespace Cassandra.Client
 
         public CassandraClient(ITransportFactory transportFactory,
             CassandraClientStats stats)
-            : this(new UvLoop(), transportFactory, stats)
+            : this(UvLoop.Default, transportFactory, stats)
         {
         }
 
@@ -98,12 +98,16 @@ namespace Cassandra.Client
             // wait until loop stops
             _loopStop.Wait();
 
-            // check if loop can be disposed
-            var loop = _loop as IDisposable;
-
-            if (loop != null)
+            // it is not nice to dispose the default loop
+            if (!ReferenceEquals(_loop, UvLoop.Default))
             {
-                loop.Dispose();
+                // check if loop implements disposable
+                var loop = _loop as IDisposable;
+
+                if (loop != null)
+                {
+                    loop.Dispose();
+                }
             }
 
             // dispose wait handle
