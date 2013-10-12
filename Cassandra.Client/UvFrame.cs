@@ -81,11 +81,6 @@ namespace Cassandra.Client
 
         public int Read(byte[] buf, int off, int len)
         {
-            if (!IsBodyRead)
-            {
-                throw new InvalidOperationException("Frame read not completed.");
-            }
-
             // ReSharper disable PossibleInvalidOperationException
             var left = _bodyLength.Value - _position + HeaderLength;
             // ReSharper restore PossibleInvalidOperationException
@@ -102,7 +97,9 @@ namespace Cassandra.Client
                 read = left;
             }
 
-            Buffer.BlockCopy(_buffer, _position, buf, 0, read);
+            Buffer.BlockCopy(_buffer, _position, buf, off, read);
+
+            _position += read;
 
             return read;
         }

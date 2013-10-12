@@ -97,6 +97,10 @@ namespace Cassandra.Client
                         return;
                     }
 
+                    // prepare frame for read
+                    _frame.Recycle();
+
+                    // receive frame
                     ReceiveFrame(tcp);
                 });
         }
