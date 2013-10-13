@@ -50,17 +50,15 @@
     <Compile Include="ITransport.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Apache.Cassandra, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Apache.Cassandra">
       <HintPath>..\Lib\Apache.Cassandra.dll</HintPath>
     </Reference>
     <Reference Include="NetUv">
       <HintPath>..\Lib\NetUv.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="Thrift, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\x64\Release\Thrift.dll</HintPath>
+    <Reference Include="Thrift">
+      <HintPath>..\Lib\Thrift.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
