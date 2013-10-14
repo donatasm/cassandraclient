@@ -4,11 +4,14 @@ using System.Diagnostics;
 using System.Threading;
 using Cassandra.Client.Thrift;
 using NetUv;
+using log4net;
 
 namespace Cassandra.Client
 {
     public sealed class CassandraClient : IDisposable
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(CassandraClient));
+
         private readonly IUvLoop _loop;
         private readonly ITransportFactory _transportFactory;
         private readonly CassandraClientStats _stats;
@@ -79,7 +82,16 @@ namespace Cassandra.Client
             new Thread(() =>
                 {
                     Debug.WriteLine("Loop thread ID={0}", Thread.CurrentThread.ManagedThreadId);
-                    _loop.Run();
+
+                    try
+                    {
+                        _loop.Run();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Loop thread error.", e);
+                    }
+
                     _loopStop.Set();
                 })
                 {
