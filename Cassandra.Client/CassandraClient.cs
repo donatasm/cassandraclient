@@ -160,11 +160,10 @@ namespace Cassandra.Client
             }
 
             var wrappedContext = GetKeyspaceWrappedContext(transport, context);
-            wrappedContext.TransportPool = _transportPool;
             wrappedContext.SendArgs(transport);
         }
 
-        private static CassandraContext GetKeyspaceWrappedContext(ITransport transport, CassandraContext context)
+        private CassandraContext GetKeyspaceWrappedContext(ITransport transport, CassandraContext context)
         {
             if (TransportKeyspaceIsNotSet(transport, context.Args))
             {
@@ -181,10 +180,12 @@ namespace Cassandra.Client
                             }
 
                             transport.Keyspace = keyspace;
+                            context.TransportPool = _transportPool; // return to pool only after keyspace is set
                             context.SendArgs(trans);
                         });
             }
 
+            context.TransportPool = _transportPool;
             return context;
         }
 
