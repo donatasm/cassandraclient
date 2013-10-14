@@ -147,12 +147,12 @@ namespace Cassandra.Client
                 }
             }
 
-            var wrappedContext = GetWrappedContext(transport, context);
+            var wrappedContext = GetKeyspaceWrappedContext(transport, context);
             wrappedContext.TransportPool = _transportPool;
             wrappedContext.SendArgs(transport);
         }
 
-        private static CassandraContext GetWrappedContext(ITransport transport, CassandraContext context)
+        private static CassandraContext GetKeyspaceWrappedContext(ITransport transport, CassandraContext context)
         {
             if (TransportKeyspaceIsNotSet(transport, context.Args))
             {
