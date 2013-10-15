@@ -15,7 +15,7 @@ namespace Cassandra.Client
         private ResultCb _flushCb;
         private IUvTcp _uvTcp;
         private bool _isOpen;
-        private FramedTransportStats _stats;
+        private IFramedTransportStats _transportStats;
         private IUvFrame _frame;
         private readonly IPEndPoint _endPoint;
         private readonly Factory _factory;
@@ -43,7 +43,7 @@ namespace Cassandra.Client
                 (tcp, exception) =>
                     {
                         _isOpen = true;
-                        _stats.IncrementTransportOpen(EndPoint);
+                        _transportStats.IncrementTransportOpen(EndPoint);
                         _openCb(this, exception);
                     });
         }
@@ -55,7 +55,7 @@ namespace Cassandra.Client
                     _isOpen = false;
                     _closeCb(this, null);
                     _factory.CloseTransport(EndPoint);
-                    _stats.IncrementTransportClose(EndPoint);
+                    _transportStats.IncrementTransportClose(EndPoint);
                 });
         }
 
@@ -106,7 +106,7 @@ namespace Cassandra.Client
                     // prepare frame for read
                     _frame.Recycle();
 
-                    _stats.IncrementTransportSendFrame(EndPoint);
+                    _transportStats.IncrementTransportSendFrame(EndPoint);
 
                     // receive frame
                     ReceiveFrame(tcp);
@@ -140,7 +140,7 @@ namespace Cassandra.Client
                 _uvTcp.ReadStop();
                 _frame.SeekBody();
                 _flushCb(this, null);
-                _stats.IncrementTransportReceiveFrame(EndPoint);
+                _transportStats.IncrementTransportReceiveFrame(EndPoint);
             }
         }
 
@@ -188,25 +188,22 @@ namespace Cassandra.Client
         public sealed class Factory : ITransportFactory
         {
             private Func<IUvTcp> _uvTcpFactory;
-            private FramedTransportStats _stats;
+            private IFramedTransportStats _transportStats;
             private IUvFrame _frame;
             private readonly Dictionary<IPEndPoint, int> _transports;
             private readonly int _maxTransportsPerEndPoint;
 
-            public Factory(int maxTransportsPerEndPoint = 64)
+            public Factory(IFramedTransportStats transportStats,
+                int maxTransportsPerEndPoint = 64)
             {
                 _transports = new Dictionary<IPEndPoint, int>();
+                _transportStats = transportStats;
                 _maxTransportsPerEndPoint = maxTransportsPerEndPoint;
             }
 
             public void SetUvTcpFactory(Func<IUvTcp> uvTcpFactory)
             {
                 _uvTcpFactory = uvTcpFactory;
-            }
-
-            public void SetStats(FramedTransportStats stats)
-            {
-                _stats = stats;
             }
 
             public void SetFrame(IUvFrame frame)
@@ -221,7 +218,7 @@ namespace Cassandra.Client
                     transport = new UvFramedTransport(endPoint, this)
                     {
                         _uvTcp = (_uvTcpFactory ?? DefaultUvTcpFactory)(),
-                        _stats = _stats ?? DefaultStats,
+                        _transportStats = _transportStats,
                         _frame = _frame ?? new UvFrame()
                     };
 
@@ -259,8 +256,6 @@ namespace Cassandra.Client
                 _transports.TryGetValue(endPoint, out count);
                 _transports[endPoint] = count - 1;
             }
-
-            private static readonly FramedTransportStats DefaultStats = new FramedTransportStats();
 
             private static IUvTcp DefaultUvTcpFactory()
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Net;
 using System.Threading;
 using Cassandra.Client.Thrift;
 using NetUv;
@@ -14,7 +15,7 @@ namespace Cassandra.Client
 
         private readonly IUvLoop _loop;
         private readonly ITransportFactory _transportFactory;
-        private readonly CassandraClientStats _stats;
+        private readonly IClientStats _clientStats;
 
         // wait handle for signaling loop stop
         private readonly ManualResetEventSlim _loopStop;
@@ -30,29 +31,29 @@ namespace Cassandra.Client
         private readonly ITransportPool _transportPool;
 
         public CassandraClient()
-            : this(new UvFramedTransport.Factory(),
-                new CassandraClientStats())
+            : this(new UvFramedTransport.Factory(DefaultClientStats),
+                DefaultClientStats)
         {
         }
 
-        public CassandraClient(CassandraClientStats stats)
-            : this(new UvFramedTransport.Factory(), stats)
+        public CassandraClient(IClientStats clientStats)
+            : this(new UvFramedTransport.Factory(clientStats), clientStats)
         {
         }
 
         public CassandraClient(ITransportFactory transportFactory,
-            CassandraClientStats stats)
-            : this(UvLoop.Default, transportFactory, stats)
+            IClientStats clientstats)
+            : this(UvLoop.Default, transportFactory, clientstats)
         {
         }
 
         internal CassandraClient(IUvLoop loop,
             ITransportFactory transportFactory,
-            CassandraClientStats stats)
+            IClientStats clientStats)
         {
             _loop = loop;
             _transportFactory = transportFactory;
-            _stats = stats;
+            _clientStats = clientStats;
 
             _loopStop = new ManualResetEventSlim();
             _contextQueue = new ConcurrentQueue<CassandraContext>();
@@ -72,7 +73,7 @@ namespace Cassandra.Client
             // enqueue and notify the loop about contexts pending
             _contextQueue.Enqueue(context);
             _asyncSend.Send();
-            _stats.IncrementArgsEnqueued();
+            _clientStats.IncrementArgsEnqueued();
         }
 
         public void RunAsync()
@@ -140,7 +141,7 @@ namespace Cassandra.Client
                 }
                 finally
                 {
-                    _stats.IncrementArgsDequeued();
+                    _clientStats.IncrementArgsDequeued();
                 }
             }
         }
@@ -200,6 +201,35 @@ namespace Cassandra.Client
 
             _asyncSend.Close(h => h.Dispose());
             _asyncStop.Close(h => h.Dispose());
+        }
+
+        private static readonly IClientStats DefaultClientStats = new ClientStats();
+
+        private class ClientStats : IClientStats
+        {
+            public void IncrementTransportOpen(IPEndPoint endPoint)
+            {
+            }
+
+            public void IncrementTransportClose(IPEndPoint endPoint)
+            {
+            }
+
+            public void IncrementTransportSendFrame(IPEndPoint endPoint)
+            {
+            }
+
+            public void IncrementTransportReceiveFrame(IPEndPoint endPoint)
+            {
+            }
+
+            public void IncrementArgsEnqueued()
+            {
+            }
+
+            public void IncrementArgsDequeued()
+            {
+            }
         }
     }
 }

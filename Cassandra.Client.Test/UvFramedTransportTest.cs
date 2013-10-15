@@ -15,7 +15,7 @@ namespace Cassandra.Client.Test
         [Test]
         public void CreatedTransportIsOpenReturnsFalse()
         {
-            var factory = new UvFramedTransport.Factory();
+            var factory = new UvFramedTransport.Factory(It.IsAny<IFramedTransportStats>());
 
             ITransport transport = null;
 
@@ -37,7 +37,7 @@ namespace Cassandra.Client.Test
         [Test]
         public void CreatedTransportReturnsLoopbackAddressForEndPointNotSet()
         {
-            var factory = new UvFramedTransport.Factory();
+            var factory = new UvFramedTransport.Factory(It.IsAny<IFramedTransportStats>());
 
             ITransport transport = null;
 
@@ -68,13 +68,12 @@ namespace Cassandra.Client.Test
                     It.IsAny<UvTcpCb>()))
                 .Callback((string ip, int port, UvTcpCb cb) => cb(uvTcp.Object, null));
 
-            var stats = new Mock<FramedTransportStats>();
+            var stats = new Mock<IFramedTransportStats>();
 
             var openCbCalled = false;
 
-            var factory = new UvFramedTransport.Factory();
+            var factory = new UvFramedTransport.Factory(stats.Object);
             factory.SetUvTcpFactory(() => uvTcp.Object);
-            factory.SetStats(stats.Object);
 
             ITransport transport = null;
 
@@ -119,14 +118,13 @@ namespace Cassandra.Client.Test
                     It.IsAny<UvCloseCb>()))
                 .Callback((UvCloseCb cb) => cb(uvTcpDisposable.Object));
 
-            var stats = new Mock<FramedTransportStats>();
+            var stats = new Mock<IFramedTransportStats>();
 
             var openCbCalled = false;
             var closeCbCalled = false;
 
-            var factory = new UvFramedTransport.Factory();
+            var factory = new UvFramedTransport.Factory(stats.Object);
             factory.SetUvTcpFactory(() => uvTcp.Object);
-            factory.SetStats(stats.Object);
 
             ITransport transport = null;
 
@@ -165,7 +163,7 @@ namespace Cassandra.Client.Test
         [Test]
         public void FlushThrowsTTransportExceptionTransportIsNotOpened()
         {
-            var factory = new UvFramedTransport.Factory();
+            var factory = new UvFramedTransport.Factory(It.IsAny<IFramedTransportStats>());
 
             ITransport transport;
 

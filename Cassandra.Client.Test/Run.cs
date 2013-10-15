@@ -112,8 +112,7 @@ namespace Cassandra.Client.Test
             var clients = new Task<long[]>[ConcurrentClients];
             TimeSpan totalElapsed;
 
-            var factory = new UvFramedTransport.Factory(ConcurrentClients);
-            factory.SetStats(stats);
+            var factory = new UvFramedTransport.Factory(stats, ConcurrentClients);
             using (var client = new CassandraClient(factory, stats))
             {
                 client.RunAsync();

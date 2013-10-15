@@ -28,7 +28,7 @@ namespace Cassandra.Client.Test
 
             using (var signal = new ManualResetEventSlim())
             {
-                var stats = new Mock<CassandraClientStats>();
+                var stats = new Mock<IClientStats>();
                 stats
                     .Setup(s => s.IncrementArgsEnqueued())
                     .Callback(() =>

@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Cassandra.Client.Test
 {
-    internal sealed class ConsoleCassandraClientStats : CassandraClientStats
+    internal sealed class ConsoleCassandraClientStats : IClientStats
     {
         private long _argsEnqueued;
         private readonly Dictionary<IPEndPoint, EndPointCounter> _endPointCounters;
@@ -16,35 +16,35 @@ namespace Cassandra.Client.Test
             ArgsDequeued = 0;
         }
 
-        public override void IncrementArgsEnqueued()
+        public void IncrementArgsEnqueued()
         {
             Interlocked.Increment(ref _argsEnqueued);
         }
 
-        public override void IncrementArgsDequeued()
+        public void IncrementArgsDequeued()
         {
             ArgsDequeued++;
         }
 
-        public override void IncrementTransportOpen(IPEndPoint endPoint)
+        public void IncrementTransportOpen(IPEndPoint endPoint)
         {
             AddIfNotExists(endPoint);
             _endPointCounters[endPoint].IncrementOpenCount();
         }
 
-        public override void IncrementTransportClose(IPEndPoint endPoint)
+        public void IncrementTransportClose(IPEndPoint endPoint)
         {
             AddIfNotExists(endPoint);
             _endPointCounters[endPoint].IncrementCloseCount();
         }
 
-        public override void IncrementTransportSendFrame(IPEndPoint endPoint)
+        public void IncrementTransportSendFrame(IPEndPoint endPoint)
         {
             AddIfNotExists(endPoint);
             _endPointCounters[endPoint].IncrementSendFrameCount();
         }
 
-        public override void IncrementTransportReceiveFrame(IPEndPoint endPoint)
+        public void IncrementTransportReceiveFrame(IPEndPoint endPoint)
         {
             AddIfNotExists(endPoint);
             _endPointCounters[endPoint].IncrementReceiveFrameCount();

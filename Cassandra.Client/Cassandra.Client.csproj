@@ -38,9 +38,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CassandraClient.cs" />
-    <Compile Include="CassandraClientStats.cs" />
     <Compile Include="CassandraContext.cs" />
-    <Compile Include="FramedTransportStats.cs" />
+    <Compile Include="IClientStats.cs" />
+    <Compile Include="IFramedTransportStats.cs" />
     <Compile Include="ITransportFactory.cs" />
     <Compile Include="ITransportPool.cs" />
     <Compile Include="IUvFrame.cs" />
