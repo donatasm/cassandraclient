@@ -155,7 +155,9 @@ namespace Cassandra.Client
             {
                 if (!_transportFactory.TryCreate(endPoint, out transport))
                 {
-                    context.ResultCb(null, TransportLimitException.Default);
+                    context.ResultCb(null,
+                        new TransportLimitException("Transport limit reached.",
+                            endPoint));
                     return;
                 }
             }
