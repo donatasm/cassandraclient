@@ -188,8 +188,8 @@ namespace Cassandra.Client
         public sealed class Factory : ITransportFactory
         {
             private Func<IUvTcp> _uvTcpFactory;
-            private IFramedTransportStats _transportStats;
             private IUvFrame _frame;
+            private readonly IFramedTransportStats _transportStats;
             private readonly Dictionary<IPEndPoint, int> _transports;
             private readonly int _maxTransportsPerEndPoint;
 
