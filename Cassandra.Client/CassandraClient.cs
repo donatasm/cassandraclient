@@ -209,19 +209,19 @@ namespace Cassandra.Client
 
         private class ClientStats : IClientStats
         {
-            public void IncrementTransportOpen(IPEndPoint endPoint)
+            public void IncrementTransportOpen(EndPoint endPoint)
             {
             }
 
-            public void IncrementTransportClose(IPEndPoint endPoint)
+            public void IncrementTransportClose(EndPoint endPoint)
             {
             }
 
-            public void IncrementTransportSendFrame(IPEndPoint endPoint)
+            public void IncrementTransportSendFrame(EndPoint endPoint)
             {
             }
 
-            public void IncrementTransportReceiveFrame(IPEndPoint endPoint)
+            public void IncrementTransportReceiveFrame(EndPoint endPoint)
             {
             }
 

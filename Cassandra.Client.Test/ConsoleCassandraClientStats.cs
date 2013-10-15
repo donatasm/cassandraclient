@@ -7,12 +7,12 @@ namespace Cassandra.Client.Test
     internal sealed class ConsoleCassandraClientStats : IClientStats
     {
         private long _argsEnqueued;
-        private readonly Dictionary<IPEndPoint, EndPointCounter> _endPointCounters;
+        private readonly Dictionary<EndPoint, EndPointCounter> _endPointCounters;
 
         public ConsoleCassandraClientStats()
         {
             _argsEnqueued = 0;
-            _endPointCounters = new Dictionary<IPEndPoint, EndPointCounter>();
+            _endPointCounters = new Dictionary<EndPoint, EndPointCounter>();
             ArgsDequeued = 0;
         }
 
@@ -26,31 +26,31 @@ namespace Cassandra.Client.Test
             ArgsDequeued++;
         }
 
-        public void IncrementTransportOpen(IPEndPoint endPoint)
+        public void IncrementTransportOpen(EndPoint endPoint)
         {
             AddIfNotExists(endPoint);
             _endPointCounters[endPoint].IncrementOpenCount();
         }
 
-        public void IncrementTransportClose(IPEndPoint endPoint)
+        public void IncrementTransportClose(EndPoint endPoint)
         {
             AddIfNotExists(endPoint);
             _endPointCounters[endPoint].IncrementCloseCount();
         }
 
-        public void IncrementTransportSendFrame(IPEndPoint endPoint)
+        public void IncrementTransportSendFrame(EndPoint endPoint)
         {
             AddIfNotExists(endPoint);
             _endPointCounters[endPoint].IncrementSendFrameCount();
         }
 
-        public void IncrementTransportReceiveFrame(IPEndPoint endPoint)
+        public void IncrementTransportReceiveFrame(EndPoint endPoint)
         {
             AddIfNotExists(endPoint);
             _endPointCounters[endPoint].IncrementReceiveFrameCount();
         }
 
-        private void AddIfNotExists(IPEndPoint endPoint)
+        private void AddIfNotExists(EndPoint endPoint)
         {
             if (!_endPointCounters.ContainsKey(endPoint))
             {
@@ -72,9 +72,9 @@ namespace Cassandra.Client.Test
 
         public sealed class EndPointCounter
         {
-            private readonly IPEndPoint _endPoint;
+            private readonly EndPoint _endPoint;
 
-            public EndPointCounter(IPEndPoint endPoint)
+            public EndPointCounter(EndPoint endPoint)
             {
                 _endPoint = endPoint;
                 OpenCount = 0;
@@ -83,7 +83,7 @@ namespace Cassandra.Client.Test
                 ReceiveFrameCount = 0;
             }
 
-            public IPEndPoint EndPoint
+            public EndPoint EndPoint
             {
                 get { return _endPoint; }
             }
