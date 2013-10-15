@@ -148,7 +148,6 @@ namespace Cassandra.Client.Test
                 Console.WriteLine("{0}:", counter.EndPoint);
                 Console.WriteLine("\topen count: {0}", counter.OpenCount);
                 Console.WriteLine("\tclose count: {0}", counter.CloseCount);
-                Console.WriteLine("\trecycle count: {0}", counter.RecycleCount);
                 Console.WriteLine("\tsend frame count: {0}", counter.SendFrameCount);
                 Console.WriteLine("\treceive frame count: {0}", counter.ReceiveFrameCount);
             }

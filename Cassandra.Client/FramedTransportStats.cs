@@ -19,9 +19,5 @@ namespace Cassandra.Client
         public virtual void IncrementTransportReceiveFrame(IPEndPoint endPoint)
         {
         }
-
-        public virtual void IncrementTransportRecycle(IPEndPoint endPoint)
-        {
-        }
     }
 }

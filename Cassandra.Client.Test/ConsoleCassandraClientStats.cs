@@ -38,12 +38,6 @@ namespace Cassandra.Client.Test
             _endPointCounters[endPoint].IncrementCloseCount();
         }
 
-        public override void IncrementTransportRecycle(IPEndPoint endPoint)
-        {
-            AddIfNotExists(endPoint);
-            _endPointCounters[endPoint].IncrementRecycleCount();
-        }
-
         public override void IncrementTransportSendFrame(IPEndPoint endPoint)
         {
             AddIfNotExists(endPoint);
@@ -85,7 +79,6 @@ namespace Cassandra.Client.Test
                 _endPoint = endPoint;
                 OpenCount = 0;
                 CloseCount = 0;
-                RecycleCount = 0;
                 SendFrameCount = 0;
                 ReceiveFrameCount = 0;
             }
@@ -105,12 +98,6 @@ namespace Cassandra.Client.Test
             public void IncrementCloseCount()
             {
                 CloseCount++;
-            }
-
-            public long RecycleCount { get; private set; }
-            public void IncrementRecycleCount()
-            {
-                RecycleCount++;
             }
 
             public long SendFrameCount { get; private set; }

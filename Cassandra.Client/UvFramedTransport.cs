@@ -89,7 +89,6 @@ namespace Cassandra.Client
         public void Recycle()
         {
             _frame.Recycle();
-            _stats.IncrementTransportRecycle(EndPoint);
         }
 
         private void SendFrame()
