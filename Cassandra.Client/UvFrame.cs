@@ -1,6 +1,5 @@
 ﻿using System;
 using NetUv;
-using Thrift.Transport;
 
 namespace Cassandra.Client
 {
@@ -111,14 +110,11 @@ namespace Cassandra.Client
                 _position = HeaderLength;
             }
 
-            var alloc = _position + len;
+            var maxBufferAvailable = _maxFrameSize + HeaderLength - _position;
 
-            if (alloc > _maxFrameSize)
+            if (maxBufferAvailable < len)
             {
-                throw new TTransportException(
-                    String.Format(
-                        "Maximum frame size {0} exceeded.",
-                        _maxFrameSize));
+                throw new FrameSizeLimitException(_maxFrameSize);
             }
 
             Buffer.BlockCopy(buf, off, _buffer, _position, len);

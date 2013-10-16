@@ -2,7 +2,6 @@
 using System.Linq;
 using Moq;
 using NUnit.Framework;
-using Thrift.Transport;
 
 namespace Cassandra.Client.Test
 {
@@ -47,20 +46,6 @@ namespace Cassandra.Client.Test
                     .Array
                     .Skip(buffer.Offset)
                     .Take(buffer.Count));
-        }
-
-        [Test]
-        public void WriteMoreBytesThanMaxFrameSize()
-        {
-            const int maxFrameSize = 8192;
-            var frame = new UvFrame(maxFrameSize);
-            var data = new byte[maxFrameSize + 1];
-            var expectedMessage = String.Format(
-                "Maximum frame size {0} exceeded.", maxFrameSize);
-
-            var exception = Assert.Throws<TTransportException>(
-                () => frame.Write(data, 0, data.Length));
-            Assert.AreEqual(expectedMessage, exception.Message);
         }
 
         [Test]
@@ -130,6 +115,17 @@ namespace Cassandra.Client.Test
 
             Assert.IsTrue(frame.IsBodyRead);
             Assert.AreEqual(0, frame.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()));
+        }
+
+        [Test]
+        public void WriteThrowsFrameSizeLimitException()
+        {
+            const int frameSize = 4;
+            var frameBody = new byte[frameSize + 1];
+
+            var frame = new UvFrame(frameSize);
+            Assert.DoesNotThrow(() => frame.Write(frameBody, 0, frameSize));
+            Assert.Throws<FrameSizeLimitException>(() => frame.Write(frameBody, frameSize, 1));
         }
     }
 }
