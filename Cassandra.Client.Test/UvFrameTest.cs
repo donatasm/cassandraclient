@@ -2,6 +2,7 @@
 using System.Linq;
 using Moq;
 using NUnit.Framework;
+using NetUv;
 
 namespace Cassandra.Client.Test
 {
@@ -126,6 +127,20 @@ namespace Cassandra.Client.Test
             var frame = new UvFrame(frameSize);
             Assert.DoesNotThrow(() => frame.Write(frameBody, 0, frameSize));
             Assert.Throws<FrameSizeLimitException>(() => frame.Write(frameBody, frameSize, 1));
+        }
+
+        [Test]
+        public void AllocThrowsFrameSizeLimitException()
+        {
+            const int frameSize = 4;
+
+            var frame = new UvFrame(frameSize);
+            var buffer = frame.AllocBuffer();
+            Assert.AreEqual(8, buffer.Array.Length);
+            Assert.AreEqual(0, buffer.Offset);
+            Assert.AreEqual(8, buffer.Count);
+            Assert.DoesNotThrow(() => frame.Read(buffer, 8));
+            Assert.Throws<FrameSizeLimitException>(() => frame.AllocBuffer());
         }
     }
 }

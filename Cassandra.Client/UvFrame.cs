@@ -23,6 +23,12 @@ namespace Cassandra.Client
         public UvBuffer AllocBuffer()
         {
             var maxBufferAvailable = _maxFrameSize + HeaderLength - _position;
+
+            if (maxBufferAvailable < 1)
+            {
+                throw new FrameSizeLimitException(_maxFrameSize);
+            }
+
             return new UvBuffer(_buffer, _position, maxBufferAvailable);
         }
 
