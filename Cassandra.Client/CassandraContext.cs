@@ -61,15 +61,12 @@ namespace Cassandra.Client
                 try
                 {
                     _resultCb(transport, null);
+                    RecycleTransport(transport);
                 }
-                finally
+                catch (Exception)
                 {
-                    transport.Recycle();
-
-                    if (_transportPool != null)
-                    {
-                        _transportPool.Add(transport);
-                    }
+                    CloseTransport(transport);
+                    throw;
                 }
             }
         }
@@ -96,15 +93,30 @@ namespace Cassandra.Client
                 }
                 finally
                 {
-                    if (transport != null)
-                    {
-                        transport.CloseCb = CloseCb;
-                        transport.Close();
-                    }
+                    CloseTransport(transport);
                 }
             }
 
             return true;
+        }
+
+        private void RecycleTransport(ITransport transport)
+        {
+            transport.Recycle();
+
+            if (_transportPool != null)
+            {
+                _transportPool.Add(transport);
+            }
+        }
+
+        private static void CloseTransport(ITransport transport)
+        {
+            if (transport != null)
+            {
+                transport.CloseCb = CloseCb;
+                transport.Close();
+            }
         }
     }
 }

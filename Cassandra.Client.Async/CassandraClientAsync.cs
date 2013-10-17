@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Apache.Cassandra;
 using Cassandra.Client.Thrift;
@@ -31,7 +32,15 @@ namespace Cassandra.Client.Async
                     // check for transport exceptions
                     if (exception == null)
                     {
-                        result.ReadMessage(transport.Protocol);
+                        try
+                        {
+                            result.ReadMessage(transport.Protocol);
+                        }
+                        catch (Exception readException)
+                        {
+                            tcs.TrySetException(readException);
+                            return;
+                        }
 
                         // check for protocol exceptions too
                         if (result.Exception == null)
