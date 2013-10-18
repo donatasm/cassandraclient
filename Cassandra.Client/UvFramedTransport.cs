@@ -115,18 +115,7 @@ namespace Cassandra.Client
 
         private void ReceiveFrame(IUvStream tcp)
         {
-            UvBuffer buffer;
-
-            try
-            {
-                buffer = _frame.AllocBuffer();
-            }
-            catch (FrameSizeLimitException e)
-            {
-                _flushCb(this, e);
-                return;
-            }
-
+            var buffer = _frame.AllocBuffer();
             tcp.ReadStart(size => buffer, ReceiveFrameCb);
         }
 

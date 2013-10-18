@@ -39,7 +39,6 @@
   <ItemGroup>
     <Compile Include="CassandraClient.cs" />
     <Compile Include="CassandraContext.cs" />
-    <Compile Include="FrameSizeLimitException.cs" />
     <Compile Include="IClientStats.cs" />
     <Compile Include="IFramedTransportStats.cs" />
     <Compile Include="ITransportFactory.cs" />
